@@ -1,0 +1,18 @@
+.product-dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    background-color: white;
+}
+
+.product-card {
+    border: 1px solid #022B4E;
+    padding: 10px;
+    width: 300px;
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+}
