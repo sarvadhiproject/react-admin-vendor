@@ -21,11 +21,6 @@ const DeactivatedVendors = () => {
         }
     }
 
-    // const handleActivate = (record) => {
-    //     // Implement your logic to approve vendor request here
-    //     console.log('Activating vendor account:', record)
-    // }
-
     const columns = [
         {
             title: '#',
@@ -34,11 +29,11 @@ const DeactivatedVendors = () => {
         },
         {
             title: 'First Name',
-            dataIndex: 'firstName',
+            dataIndex: 'first_name',
         },
         {
             title: 'Last Name',
-            dataIndex: 'lastName',
+            dataIndex: 'last_name',
         },
         {
             title: 'Email',
@@ -46,44 +41,21 @@ const DeactivatedVendors = () => {
         },
         {
             title: 'Phone No',
-            dataIndex: 'phoneNo',
+            dataIndex: 'phoneno',
         },
         {
             title: 'Company Name',
-            dataIndex: 'CompanyName',
+            dataIndex: 'company_name',
         },
         {
             title: 'GST No',
-            dataIndex: 'GSTNo',
+            dataIndex: 'gstno',
         },
         {
             title: 'Deactivation Date',
             dataIndex: 'updatedAt',
             render: (text, record) => new Date(text).toLocaleString(),
         },
-        // {
-        //     title: 'Action',
-        //     dataIndex: 'action',
-        //     render: (_, record) => (
-        //         <Button
-        //             type="primary"
-        //             onClick={() => handleActivate(record)}
-        //             // size="small"
-        //             style={{
-        //                 background: '#1890ff',
-        //                 borderColor: '#1890ff',
-        //                 borderRadius: '4px',
-        //                 transition: 'background-color 0.3s',
-        //                 '&:hover': {
-        //                     background: '#40a9ff',
-        //                     borderColor: '#40a9ff',
-        //                 },
-        //             }}
-        //         >
-        //             Activate
-        //         </Button>
-        //     ),
-        // },
     ]
 
     return (

@@ -9,29 +9,32 @@ const AddProductPrice = ({ onNext, onPrev, formData, setFormData }) => {
 
     return (
         <Form onFinish={handleSubmit} initialValues={formData}>
-            <Form.Item name="MRP" label="MRP" rules={[{ required: true }]}>
+            <Form.Item name="mrp" label="MRP" rules={[{ required: true }]}>
                 <Input
                     type="number"
+                    // min={0}
                     style={{ width: '220px', height: '35px' }}
                 />
             </Form.Item>
             <Form.Item
-                name="Selling_Price"
+                name="selling_price"
                 label="Selling Price"
                 rules={[{ required: true }]}
             >
                 <Input
                     type="number"
+                    // min={0}
                     style={{ width: '220px', height: '35px' }}
                 />
             </Form.Item>
             <Form.Item
-                name="Vendor_Price"
+                name="vendor_price"
                 label="Vendor Price"
                 rules={[{ required: true }]}
             >
                 <Input
                     type="number"
+                    // min={0}
                     style={{ width: '220px', height: '35px' }}
                 />
             </Form.Item>

@@ -1,7 +1,9 @@
 import React, { forwardRef, useState } from 'react'
-import { Form, Input, Upload, Card } from 'antd'
+import { Form, Input, Upload, Card, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { Button, Notification, hooks, toast } from 'components/ui'
+import { getProducts } from '../CategoryList/store/dataSlice'
+import { useDispatch } from 'react-redux'
 
 const { useUniqueId } = hooks
 
@@ -14,72 +16,70 @@ const CategoryForm = forwardRef((props, ref) => {
     const [fileList, setFileList] = useState([])
     const [imagePreview, setImagePreview] = useState('')
     // const [imageUrl, setImageUrl] = useState(null)
-
+    const dispatch = useDispatch()
     const onFinish = async (values) => {
         setLoading(true)
         try {
             const formData = new FormData()
-            formData.append('categoryName', values.categoryName)
+            formData.append('category_name', values.category_name)
             fileList.forEach((file) => {
                 formData.append('category_image', file.originFileObj)
             })
 
             const response = await onFormSubmit(formData)
-            // console.log('response in form', response)
-            if (response) {
-                if (response.status === 200) {
-                    // form.resetFields()
-                    toast.push(
-                        <Notification
-                            title={'Successfully added'}
-                            type="success"
-                            duration={2500}
-                        >
-                            Category added successfully
-                        </Notification>,
-                        {
-                            placement: 'top-center',
-                        }
-                    )
-                } else if (response.status === 400) {
-                    toast.push(
-                        <Notification
-                            title={'Failed to add category'}
-                            type="danger"
-                            duration={2500}
-                        >
-                            {response.data.message}
-                        </Notification>,
-                        {
-                            placement: 'top-center',
-                        }
-                    )
-                } else if (response.status === 500) {
-                    throw new Error('Internal Server Error')
-                } else {
-                    throw new Error(response.data.message || 'Unknown error')
-                }
-            } else {
-                throw new Error('Caught unknown error')
+
+            if (
+                response &&
+                response.message === 'Category created successfully'
+            ) {
+                // toast.push(
+                //     <Notification
+                //         title={'Successfully added'}
+                //         type="success"
+                //         duration={2500}
+                //     >
+                //         Category added successfully
+                //     </Notification>,
+                //     {
+                //         placement: 'top-center',
+                //     }
+                // )
+            } else if (response && response.status === 400) {
+                // toast.push(
+                //     <Notification
+                //         title={'Failed to add category'}
+                //         type="danger"
+                //         duration={2500}
+                //     >
+                //         {response.data.message}
+                //     </Notification>,
+                //     {
+                //         placement: 'top-center',
+                //     }
+                // )
             }
+            // else if (response && response.status === 500) {
+            //     throw new Error('Internal Server Error')
+            // } else {
+            // throw new Error(response?.data?.message || 'Unknown error')
+            // }
         } catch (error) {
-            console.error('Error:', error)
-            toast.push(
-                <Notification
-                    title={'Failed to add category'}
-                    type="danger"
-                    duration={2500}
-                >
-                    {error.message}
-                </Notification>,
-                {
-                    placement: 'top-center',
-                }
-            )
+            // toast.push(
+            //     <Notification
+            //         title={'Successfully added'}
+            //         type="success"
+            //         duration={2500}
+            //     >
+            //         Category added successfully
+            //     </Notification>,
+            //     {
+            //         placement: 'top-center',
+            //     }
+            // )
         } finally {
             form.resetFields()
-            // setImageUrl(null)
             setLoading(false)
+            dispatch(getProducts())
         }
     }
 
@@ -92,6 +92,23 @@ const CategoryForm = forwardRef((props, ref) => {
             <div style={{ marginTop: 8 }}>Upload</div>
         </div>
     )
+    const handlePreview = (file) => {
+        if (file.type && file.type.startsWith('image/')) {
+            const reader = new FileReader()
+            reader.onload = () => {
+                const imageUrl = reader.result
+                if (imageUrl) {
+                    const newTab = window.open()
+                    newTab.document.write(`<img src="${imageUrl}" />`)
+                } else {
+                    message.error('Failed to generate preview')
+                }
+            }
+            reader.readAsDataURL(file.originFileObj)
+        } else {
+            message.error('Only image files can be previewed')
+        }
+    }
 
     return (
         <div className="flex items-center">
@@ -102,7 +119,7 @@ const CategoryForm = forwardRef((props, ref) => {
                     className="w-full max-w-md"
                 >
                     <Form.Item
-                        name="categoryName"
+                        name="category_name"
                         label="Category Name"
                         rules={[
                             {
@@ -115,11 +132,21 @@ const CategoryForm = forwardRef((props, ref) => {
                         <Input className="w-full" />
                     </Form.Item>
 
-                    <Form.Item name="category_image" label="Category Image">
+                    <Form.Item
+                        name="category_image"
+                        label="Category Image"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please upload category image',
+                            },
+                        ]}
+                    >
                         <Upload
                             maxCount={1}
                             listType="picture-card"
                             accept="image/*"
+                            onPreview={handlePreview}
                             onChange={handleUploadChange}
                             beforeUpload={() => false}
                         >
@@ -136,8 +163,7 @@ const CategoryForm = forwardRef((props, ref) => {
                     </Form.Item>
 
                     <Button
-                        htmlType="submit"
-                        size="sm"
+                        htmltype="submit"
                         loading={loading}
                         style={{ backgroundColor: 'blue', color: 'white' }}
                     >
@@ -152,7 +178,7 @@ const CategoryForm = forwardRef((props, ref) => {
 CategoryForm.defaultProps = {
     type: 'edit',
     initialData: {
-        categoryName: '',
+        category_name: '',
         category_image: null,
     },
 }

@@ -10,7 +10,7 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
 
     const handleUpload = ({ fileList }) => {
         setFileList(fileList)
-        form.validateFields(['productImages'])
+        form.validateFields(['p_images'])
     }
     const handlePreview = (file) => {
         if (file.type && file.type.startsWith('image/')) {
@@ -32,20 +32,56 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
         }
     }
 
+    // const handleSubmit = async () => {
+    //     try {
+    //         // if (fileList.length === 0) {
+    //         //     message.error('Please upload at least one image')
+    //         //     return
+    //         // }
+
+    //         const formDataToSend = new FormData()
+    //         Object.keys(formData).forEach((key) => {
+    //             formDataToSend.append(key, formData[key])
+    //         })
+    //         fileList.forEach((file) => {
+    //             formDataToSend.append('p_images', file.originFileObj)
+    //         })
+
+    //         const response = await fetch(
+    //             `${appConfig.apiPrefix}/add-product-cloudinary`,
+    //             {
+    //                 method: 'POST',
+    //                 body: formDataToSend,
+    //             }
+    //         )
+
+    //         if (response.ok) {
+    //             message.success('Product added successfully')
+    //             onSubmit()
+    //         } else {
+    //             const data = await response.json()
+    //             message.error(data.error || 'Failed to add product')
+    //         }
+    //     } catch (error) {
+    //         message.error('Failed to add product:', error)
+    //     }
+    // }
     const handleSubmit = async () => {
         try {
-            // Check if fileList is empty
-            if (fileList.length === 0) {
-                message.error('Please upload at least one image')
-                return
-            }
+            // if (fileList.length === 0) {
+            //     message.error('Please upload at least one image')
+            //     return
+            // }
 
             const formDataToSend = new FormData()
             Object.keys(formData).forEach((key) => {
                 formDataToSend.append(key, formData[key])
             })
             fileList.forEach((file) => {
-                formDataToSend.append('Images', file.originFileObj)
+                const fileObject = new File([file.originFileObj], file.name, {
+                    type: file.type,
+                })
+                formDataToSend.append('p_images', fileObject)
             })
 
             const response = await fetch(
@@ -67,12 +103,11 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
             message.error('Failed to add product:', error)
         }
     }
-
     return (
         <Form onFinish={handleSubmit}>
             <Form.Item
                 label="Product Images"
-                name="productImages"
+                name="p_images"
                 // rules={[
                 //     {
                 //         validator: (_, value) => {

@@ -16,8 +16,8 @@ const CategoryNew = ({ onClose }) => {
     const addProduct = async (data) => {
         try {
             const response = await apiCreateSalesProduct(data)
-            console.log('response', response)
-            console.log('response', response.data)
+            // console.log('response', response)
+            // console.log('response', response.data)
             return response.data
         } catch (error) {
             console.error('Error:', error)
@@ -28,14 +28,66 @@ const CategoryNew = ({ onClose }) => {
     const handleFormSubmit = async (values) => {
         try {
             const response = await addProduct(values)
-            if (response.status === 200) {
+            if (
+                response &&
+                response.message === 'Category created successfully'
+            ) {
                 fetchData()
-                return response
+                toast.push(
+                    <Notification
+                        title={'Successfully added'}
+                        type="success"
+                        duration={2500}
+                    >
+                        Category added successfully
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
                 // navigate('/app/sales/category-list')
+            } else if (response && response.message) {
+                toast.push(
+                    <Notification
+                        title={'Failed to add category'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {response.message}
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            } else {
+                console.error('Unexpected response format:', response)
+                toast.push(
+                    <Notification
+                        title={'Failed to add category'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        Check your connection
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
             }
         } catch (error) {
-            console.log('catch err', error)
-            return error.response
+            console.error('Error:', error)
+            toast.push(
+                <Notification
+                    title={'Failed to add category'}
+                    type="danger"
+                    duration={2500}
+                >
+                    {error.message}
+                </Notification>,
+                {
+                    placement: 'top-center',
+                }
+            )
         } finally {
             onClose()
         }
@@ -43,7 +95,6 @@ const CategoryNew = ({ onClose }) => {
 
     const handleDiscard = () => {
         onClose()
-        // navigate('/app/sales/category-list')
     }
 
     return (

@@ -3,7 +3,8 @@ import ApiService from './ApiService'
 export async function apiGetSalesProducts(data) {
     return ApiService.fetchData({
         // url: '/sales/products',
-        url: '/view-category-cloudinary',
+        // url: '/view-category-cloudinary',
+        url: '/all-categories',
         method: 'GET',
         data,
     })

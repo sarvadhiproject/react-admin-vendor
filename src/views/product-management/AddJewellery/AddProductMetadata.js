@@ -1,103 +1,3 @@
-// import React, { useState, useEffect } from 'react'
-// import { Form, Input, Select, Button } from 'antd'
-// import appConfig from 'configs/app.config'
-// const { Option } = Select
-
-// const AddProductMetadata = ({ onNext, formData, setFormData }) => {
-//     const [categories, setCategories] = useState([])
-
-//     useEffect(() => {
-//         fetchCategories()
-//     }, [])
-
-//     const fetchCategories = async () => {
-//         try {
-//             const response = await fetch(
-//                 `${appConfig.apiPrefix}/view-category-cloudinary`
-//             )
-//             const data = await response.json()
-//             setCategories(data)
-//         } catch (error) {
-//             console.error('Error fetching categories:', error)
-//         }
-//     }
-
-//     const handleSubmit = (values) => {
-//         setFormData({ ...formData, ...values })
-//         onNext()
-//     }
-//     const handleCategoryChange = (categoryID) => {
-//         setFormData({ ...formData, categoryID })
-//     }
-
-//     return (
-//         <Form onFinish={handleSubmit} initialValues={formData}>
-//             <Form.Item
-//                 name="Product_name"
-//                 label="Title"
-//                 rules={[{ required: true }]}
-//             >
-//                 <Input style={{ width: '300px', height: '35px' }} />
-//             </Form.Item>
-//             <Form.Item
-//                 name="description"
-//                 label="Description"
-//                 rules={[{ required: true }]}
-//             >
-//                 <Input.TextArea style={{ width: '500px', height: '101px' }} />
-//             </Form.Item>
-
-//             <Form.Item
-//                 label="Category"
-//                 name="CategoryID"
-//                 rules={[{ required: true, message: 'Please select category' }]}
-//             >
-//                 <Select
-//                     style={{ width: '300px', height: '35px' }}
-//                     onChange={handleCategoryChange}
-//                     placeholder="Select a category"
-//                     value={formData.categoryID}
-//                 >
-//                     {categories.map((category) => (
-//                         <Option
-//                             key={category.categoryID}
-//                             value={category.categoryID}
-//                         >
-//                             {category.categoryName}
-//                         </Option>
-//                     ))}
-//                 </Select>
-//             </Form.Item>
-//             <Form.Item>
-//                 <Button
-//                     type="primary"
-//                     htmlType="submit"
-//                     style={{
-//                         background: '#1890ff',
-//                         borderColor: '#1890ff',
-//                         borderRadius: '4px',
-//                         marginTop: '10px',
-//                         width: '80px',
-//                     }}
-//                     // style={{
-//                     //     // background: '#1890ff',
-//                     //     background: 'white',
-//                     //     fontWeight: '650',
-//                     //     color: '#022b4e',
-//                     //     border: '1px solid #022b4e',
-//                     //     // borderColor: '',
-//                     //     borderRadius: '4px',
-//                     //     width: '80px',
-//                     // }}
-//                 >
-//                     Next
-//                 </Button>
-//             </Form.Item>
-//         </Form>
-//     )
-// }
-
-// export default AddProductMetadata
 import React, { useState, useEffect } from 'react'
 import { Form, Input, Select, Button } from 'antd'
 import appConfig from 'configs/app.config'
@@ -113,7 +13,7 @@ const AddProductMetadata = ({ onNext, formData, setFormData }) => {
     const fetchCategories = async () => {
         try {
             const response = await fetch(
-                `${appConfig.apiPrefix}/view-category-cloudinary`
+                `${appConfig.apiPrefix}/all-categories`
             )
             const data = await response.json()
             setCategories(data)
@@ -126,8 +26,8 @@ const AddProductMetadata = ({ onNext, formData, setFormData }) => {
         setFormData({ ...formData, ...values })
         onNext()
     }
-    const handleCategoryChange = (categoryID) => {
-        setFormData({ ...formData, categoryID })
+    const handleCategoryChange = (category_id) => {
+        setFormData({ ...formData, category_id })
     }
 
     return (
@@ -163,14 +63,14 @@ const AddProductMetadata = ({ onNext, formData, setFormData }) => {
                     style={{ width: '300px', height: '35px' }}
                     onChange={handleCategoryChange}
                     placeholder="Select a category"
-                    value={formData.categoryID}
+                    value={formData.category_id}
                 >
                     {categories.map((category) => (
                         <Option
-                            key={category.categoryID}
-                            value={category.categoryID}
+                            key={category.category_id}
+                            value={category.category_id}
                         >
-                            {category.categoryName}
+                            {category.category_name}
                         </Option>
                     ))}
                 </Select>

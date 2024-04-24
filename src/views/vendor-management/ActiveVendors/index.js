@@ -40,10 +40,6 @@ const ActiveVendors = () => {
         try {
             const response = await axios.put(
                 `${appConfig.apiPrefix}/deactivate-vendor/${selectedVendor.id}`
-                // {
-                //     vendorId: selectedVendor.id,
-                //     reason: deactivateReason,
-                // }
             )
             if (response.data.success) {
                 message.success('Vendor account deactivated successfully')
@@ -67,11 +63,11 @@ const ActiveVendors = () => {
         },
         {
             title: 'First Name',
-            dataIndex: 'firstName',
+            dataIndex: 'first_name',
         },
         {
             title: 'Last Name',
-            dataIndex: 'lastName',
+            dataIndex: 'last_name',
         },
         {
             title: 'Email',
@@ -79,15 +75,15 @@ const ActiveVendors = () => {
         },
         {
             title: 'Phone No',
-            dataIndex: 'phoneNo',
+            dataIndex: 'phoneno',
         },
         {
             title: 'Company Name',
-            dataIndex: 'CompanyName',
+            dataIndex: 'company_name',
         },
         {
             title: 'GST No',
-            dataIndex: 'GSTNo',
+            dataIndex: 'gstno',
         },
         {
             title: 'Registration Date',

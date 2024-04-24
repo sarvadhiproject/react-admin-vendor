@@ -16,7 +16,7 @@ const AddJewellery = () => {
             const decodedToken = jwtDecode(token)
             // console.log('Decoded token:', decodedToken)
             var vendorID = decodedToken.id
-            // console.log('Vendor ID:', vendorID)
+            console.log('Vendor ID:', vendorID)
         } catch (error) {
             console.error('Error decoding JWT token:', error)
         }
@@ -26,31 +26,26 @@ const AddJewellery = () => {
 
     const [current, setCurrent] = useState(0)
     const [formData, setFormData] = useState({
-        // Initial form data
-        Product_name: '',
-        description: '',
-        categoryID: '',
-        vendorID: vendorID,
-        MRP: '',
-        Selling_Price: '',
-        Vendor_Price: '',
-        Stock_quantity: '',
-        Clasp_type: '',
-        Material_type: '',
-        Metal_type: '',
-        Chain_type: '',
-        Gem_type: '',
-        Gem_Color: '',
-        Occasion_type: [],
-        Size: '',
-        Metal_Stamp: '',
-        productImages: [],
-        // ratings: 4.5,
+        product_name: '',
+        category_id: '',
+        vendor_id: vendorID,
+        basic_description: '',
+        main_description: '',
+        mrp: '',
+        selling_price: '',
+        vendor_price: '',
+        stock_quantity: '',
+        weight: '',
+        clasp_type: '',
+        gold_type: '',
+        gem_type: [],
+        no_of_gems: 0,
+        gem_color: '',
+        occasion_type: [],
+        size: '',
+        purity: '',
+        p_images: [],
     })
-    const [gemColor, setGemColor] = useState('#FFFFFF') // State for color value
-    const handleGemColorChange = (color) => {
-        setGemColor(color.hex)
-    }
     const handleNext = () => {
         setCurrent(current + 1)
     }
@@ -83,9 +78,6 @@ const AddJewellery = () => {
                     onNext={handleNext}
                     onPrev={handlePrev}
                     formData={formData}
-                    gemColor={gemColor}
-                    setGemColor={setGemColor}
-                    y
                     setFormData={setFormData}
                 />
             ),

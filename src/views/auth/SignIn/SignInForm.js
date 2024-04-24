@@ -14,9 +14,16 @@ import * as Yup from 'yup'
 import useAuth from 'utils/hooks/useAuth'
 
 const validationSchema = Yup.object().shape({
-    email: Yup.string().required('Please enter your email'),
-    password: Yup.string().required('Please enter your password'),
-    rememberMe: Yup.bool(),
+    email: Yup.string()
+        .email('Valid email format (e.g., abc12@gmail.com)')
+        .required('Please enter your email'),
+    password: Yup.string()
+        // .matches(
+        //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        //     'Valid password format (e.g., Abcd@1234)'
+        // )
+        .required('Please enter your password'),
+    // rememberMe: Yup.bool(),
 })
 
 const SignInForm = (props) => {

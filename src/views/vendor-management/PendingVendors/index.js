@@ -48,11 +48,11 @@ const PendingVendors = () => {
         },
         {
             title: 'First Name',
-            dataIndex: 'firstName',
+            dataIndex: 'first_name',
         },
         {
             title: 'Last Name',
-            dataIndex: 'lastName',
+            dataIndex: 'last_name',
         },
         {
             title: 'Email',
@@ -60,15 +60,15 @@ const PendingVendors = () => {
         },
         {
             title: 'Phone No',
-            dataIndex: 'phoneNo',
+            dataIndex: 'phoneno',
         },
         {
             title: 'Company Name',
-            dataIndex: 'CompanyName',
+            dataIndex: 'company_name',
         },
         {
             title: 'GST No',
-            dataIndex: 'GSTNo',
+            dataIndex: 'gstno',
         },
         {
             title: 'Registration Date/Time',

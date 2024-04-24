@@ -1,15 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Avatar, Badge, Button, Notification, toast } from 'components/ui'
 import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
-import { getProducts, setTableData } from '../store/dataSlice'
-// import { setSelectedProduct } from '../store/stateSlice'
-// import { toggleDeleteConfirmation } from '../store/stateSlice'
-// import useThemeClass from 'utils/hooks/useThemeClass'
-import { useNavigate } from 'react-router-dom'
+import { getProducts } from '../store/dataSlice'
 import { Table, Space, message, Modal, Form, Input, Upload } from 'antd'
 import appConfig from 'configs/app.config'
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { UploadOutlined } from '@ant-design/icons'
 
 const normFile = (e) => {
@@ -20,16 +15,19 @@ const normFile = (e) => {
 }
 
 const beforeUpload = (file) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
-    if (!isJpgOrPng) {
-        message.error('You can only upload JPG/PNG file!')
-    }
     const isLt2M = file.size / 1024 / 1024 < 2
     if (!isLt2M) {
         message.error('Image must be smaller than 2MB!')
+        return Upload.LIST_IGNORE
     }
-    return isJpgOrPng && isLt2M
+    return true
 }
+const uploadButton = (
+    <div>
+        <UploadOutlined />
+        <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+)
 const ProductTable = () => {
     const [showEditModal, setShowEditModal] = useState(false)
     const [editingCategory, setEditingCategory] = useState(null)
@@ -37,62 +35,57 @@ const ProductTable = () => {
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [form] = Form.useForm()
     const [imageUrl, setImageUrl] = useState(null)
-    const [loading, setLoading] = useState(false)
-
-    const tableRef = useRef(null)
+    const [fileList, setFileList] = useState([])
 
     const dispatch = useDispatch()
-    // const loading = useSelector((state) => state.salesProductList.data.loading)
     const data = useSelector((state) => state.salesProductList.data.productList)
-    // console.log(data)
-    useEffect(() => {
-        fetchData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
-    const fetchData = () => {
+    useEffect(() => {
         dispatch(getProducts())
-    }
+    }, [dispatch])
+
     const handleChange = (info) => {
         if (info.file.status === 'uploading') {
-            setLoading(true)
             return
         }
         if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            setImageUrl(`${appConfig.apiPrefix}` + info.file.response.url)
-            setLoading(false)
+            setImageUrl(info.file.response.url)
+            setFileList(info.fileList)
         }
     }
 
-    const uploadButton = (
-        <div>
-            <UploadOutlined />
-            <div style={{ marginTop: 8 }}>Upload</div>
-        </div>
-    )
-
     const handleEdit = (record) => {
         setEditingCategory(record)
-        setImageUrl(`${appConfig.apiPrefix}/` + record.category_image) // Display previous image
-        setShowEditModal(true)
+        setImageUrl(`${appConfig.imgPrefix}/${record.category_image}`)
         form.setFieldsValue({
-            categoryName: record.categoryName,
+            category_name: record.category_name,
+            category_image: [
+                {
+                    uid: '-1',
+                    name: 'image.png',
+                    status: 'done',
+                    url: `${appConfig.imgPrefix}/${record.category_image}`,
+                },
+            ],
         })
+        setShowEditModal(true)
+    }
+    const fetchData = () => {
+        dispatch(getProducts())
     }
 
     const handleEditSubmit = async (values) => {
         try {
             //
             const formData = new FormData()
-            formData.append('categoryName', values.categoryName)
+            formData.append('category_name', values.category_name)
             formData.append(
                 'category_image',
                 values.category_image[0]?.originFileObj
             )
             //
             const response = await fetch(
-                `${appConfig.apiPrefix}/update-category/${editingCategory.categoryID}`,
+                `${appConfig.apiPrefix}/update-category/${editingCategory.category_id}`,
                 {
                     method: 'PUT',
                     body: formData,
@@ -130,14 +123,13 @@ const ProductTable = () => {
             )
         }
     }
-
     const columns = [
         {
             // title: 'Category ID',
             title: '#',
-            dataIndex: 'categoryID',
-            key: 'categoryID',
-            // sorter: (a, b) => a.categoryID - b.categoryID,
+            dataIndex: 'category_id',
+            key: 'category_id',
+            // sorter: (a, b) => a.category_id - b.category_id,
             render: (text, record, index) => index + 1,
         },
         {
@@ -160,25 +152,10 @@ const ProductTable = () => {
         },
         {
             title: 'Category Name',
-            dataIndex: 'categoryName',
-            key: 'categoryName',
-            // sorter: (a, b) => a.categoryName.localeCompare(b.categoryName),
+            dataIndex: 'category_name',
+            key: 'category_name',
+            // sorter: (a, b) => a.category_name.localeCompare(b.category_name),
         },
-        // {
-        //     title: 'Image',
-        //     dataIndex: 'category_image',
-        //     key: 'category_image',
-        //     render: (imageUrl) => (
-        //         <a
-        //             href={`${appConfig.imgPrefix}/${imageUrl}`}
-        //             target="_blank"
-        //             rel="noopener noreferrer"
-        //             style={{ color: 'blue' }}
-        //         >
-        //             View Image
-        //         </a>
-        //     ),
-        // },
         {
             title: 'Action',
             key: 'action',
@@ -214,7 +191,7 @@ const ProductTable = () => {
 
     const handleDelete = (record) => {
         console.log('Delete:', record)
-        setDeleteCategoryId(record.categoryID)
+        setDeleteCategoryId(record.category_id)
         setShowConfirmation(true)
     }
 
@@ -265,60 +242,63 @@ const ProductTable = () => {
                 title="Edit Category"
                 open={showEditModal}
                 onCancel={() => setShowEditModal(false)}
-                footer={null}
+                footer={[
+                    <Button
+                        key="cancel"
+                        onClick={() => setShowEditModal(false)}
+                        style={{ marginRight: '8px' }}
+                    >
+                        Cancel
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        onClick={() => form.submit()}
+                        style={{ backgroundColor: 'blue', color: 'white' }}
+                    >
+                        Save
+                    </Button>,
+                ]}
             >
-                <Form form={form} onFinish={handleEditSubmit} layout="vertical">
+                <Form
+                    form={form}
+                    onFinish={handleEditSubmit}
+                    initialValues={{
+                        category_name: editingCategory?.category_name,
+                        category_image: fileList,
+                    }}
+                >
                     <Form.Item
                         label="Category Name"
-                        name="categoryName"
+                        name="category_name"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input category name',
+                                message: 'Please enter category name',
                             },
                         ]}
                     >
-                        <Input size="large" />
+                        <Input />
                     </Form.Item>
                     <Form.Item
                         label="Category Image"
                         name="category_image"
-                        // valuePropName="fileList"
+                        valuePropName="fileList"
                         getValueFromEvent={normFile}
                     >
                         <Upload
                             maxCount={1}
-                            name="category_image"
-                            // listType="picture-card"
-                            // className="avatar-uploader"
                             listType="picture-card"
-                            accept="image/*"
-                            showUploadList={true}
-                            // action={`${appConfig.apiPrefix}/upload-category-image`}
+                            showUploadList={{
+                                showPreviewIcon: true,
+                                showRemoveIcon: true,
+                            }}
+                            action={`${appConfig.apiPrefix}/update-category/${editingCategory?.category_id}`}
                             beforeUpload={beforeUpload}
                             onChange={handleChange}
                         >
-                            {imageUrl ? (
-                                uploadButton
-                            ) : (
-                                <img
-                                    // src={imageUrl}
-                                    // alt="avatar"
-                                    style={{ width: '100%' }}
-                                />
-                            )}
+                            {uploadButton}
                         </Upload>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button
-                            className="mr-2 mb-2"
-                            variant="solid"
-                            color="green-600"
-                            // loading={loading}
-                            htmlType="submit"
-                        >
-                            Save
-                        </Button>
                     </Form.Item>
                 </Form>
             </Modal>
@@ -345,15 +325,15 @@ const ProductTable = () => {
             </Modal>
 
             <Table
-                bordered={true}
+                // bordered={true}
                 // style={{marginRight:'20px'}}
+                rowKey="category_id"
                 size="small"
                 columns={columns}
                 dataSource={data}
-                pagination={true} // Remove this line if you want pagination
+                pagination={true}
             />
         </>
     )
 }
-
 export default ProductTable
