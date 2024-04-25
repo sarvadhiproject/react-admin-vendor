@@ -16,7 +16,7 @@ const AddJewellery = () => {
             const decodedToken = jwtDecode(token)
             // console.log('Decoded token:', decodedToken)
             var vendorID = decodedToken.id
-            console.log('Vendor ID:', vendorID)
+            // console.log('Vendor ID:', vendorID)
         } catch (error) {
             console.error('Error decoding JWT token:', error)
         }
@@ -108,7 +108,7 @@ const AddJewellery = () => {
 
     return (
         <div>
-            <h3>Add Jewellery</h3>
+            <h3 style={{ color: '#022B4E' }}>Add Jewellery</h3>
             <Steps style={{ marginTop: '20px' }} current={current}>
                 {steps.map((step, index) => (
                     <Step key={index} title={step.title} />
