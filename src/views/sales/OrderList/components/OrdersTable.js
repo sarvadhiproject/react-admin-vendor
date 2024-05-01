@@ -62,6 +62,27 @@ const PaymentMethodImage = ({ paymentMehod, className }) => {
     }
 }
 
+const dummyData = [
+    {
+        id: 1,
+        date: 1682892000, // Unix timestamp
+        customer: 'John Doe',
+        status: 0,
+        paymentMehod: 'visa',
+        paymentIdendifier: '****1234',
+        totalAmount: 99.99,
+    },
+    {
+        id: 2,
+        date: 1682978400, // Unix timestamp
+        customer: 'Jane Smith',
+        status: 1,
+        paymentMehod: 'master',
+        paymentIdendifier: '****5678',
+        totalAmount: 149.99,
+    },
+]
+
 const OrderColumn = ({ row }) => {
     const { textTheme } = useThemeClass()
     const navigate = useNavigate()
@@ -117,7 +138,6 @@ const ActionColumn = ({ row }) => {
 }
 
 const OrdersTable = () => {
-
     const tableRef = useRef(null)
 
     const dispatch = useDispatch()
@@ -127,7 +147,8 @@ const OrdersTable = () => {
     )
     const loading = useSelector((state) => state.salesOrderList.data.loading)
 
-    const data = useSelector((state) => state.salesOrderList.data.orderList)
+    // const data = useSelector((state) => state.salesOrderList.data.orderList)
+    const data = dummyData
 
     const fetchData = useCallback(() => {
         dispatch(getOrders({ pageIndex, pageSize, sort, query }))
@@ -282,7 +303,7 @@ const OrdersTable = () => {
             ref={tableRef}
             columns={columns}
             data={data}
-            loading={loading}
+            // loading={loading}
             pagingData={tableData}
             onPaginationChange={onPaginationChange}
             onSelectChange={onSelectChange}

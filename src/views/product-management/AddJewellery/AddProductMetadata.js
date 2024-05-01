@@ -53,7 +53,6 @@ const AddProductMetadata = ({ onNext, formData, setFormData }) => {
             >
                 <Input.TextArea style={{ width: '500px', height: '101px' }} />
             </Form.Item>
-            {/* for review */}
             <Form.Item
                 label="Category"
                 name="category_id"

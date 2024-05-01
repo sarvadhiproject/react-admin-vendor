@@ -1,74 +1,123 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Form, Upload, Button, message, Spin } from 'antd'
 import { UploadOutlined, LoadingOutlined } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
-import { useForm } from 'antd/lib/form/Form'
 import { Notification, toast } from 'components/ui'
 
-const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
+const EditProductImages = ({
+    onPrev,
+    formData,
+    setFormData,
+    onSubmit,
+    productId,
+}) => {
     const [fileList, setFileList] = useState([])
     const [form] = Form.useForm()
     const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        fetchExistingImages(productId)
+    }, [productId])
+
+    const fetchExistingImages = async (productId) => {
+        try {
+            const response = await fetch(
+                `${appConfig.apiPrefix}/product-details/${productId}`
+            )
+            const data = await response.json()
+            const existingImages = data.p_images.map((image) => ({
+                uid: image,
+                name: image,
+                status: 'done',
+                url: `${appConfig.imgPrefix}/${image}`,
+            }))
+            setFileList(existingImages)
+        } catch (error) {
+            console.error('Error fetching existing images:', error)
+        }
+    }
     const handleUpload = ({ fileList }) => {
         setFileList(fileList)
         form.validateFields(['p_images'])
     }
+
     const handlePreview = (file) => {
         if (file.type && file.type.startsWith('image/')) {
+            // Handle preview for local file objects
             const reader = new FileReader()
             reader.onload = () => {
                 const imageUrl = reader.result
                 if (imageUrl) {
-                    const newTab = window.open()
-                    newTab.document.write(
-                        `<img src="${imageUrl}" style="max-width: 100%; max-height: 100%;" />`
-                    )
+                    const newTab = window.open(imageUrl)
+                    if (newTab) {
+                        newTab.focus()
+                    } else {
+                        message.error(
+                            'Unable to open a new tab. Please check your browser settings.'
+                        )
+                    }
                 } else {
                     message.error('Failed to generate preview')
                 }
             }
             reader.readAsDataURL(file.originFileObj)
+        } else if (file.url) {
+            // Handle preview for existing images from the server
+            const newTab = window.open(file.url)
+            if (newTab) {
+                newTab.focus()
+            } else {
+                message.error(
+                    'Unable to open a new tab. Please check your browser settings.'
+                )
+            }
         } else {
             message.error('Only image files can be previewed')
         }
     }
+
     const handleSubmit = async () => {
         try {
             setLoading(true)
-            if (fileList.length === 0) {
-                message.error('Please upload at least one image')
-                setLoading(false)
-                return
-            }
-
             const formDataToSend = new FormData()
             Object.keys(formData).forEach((key) => {
                 formDataToSend.append(key, formData[key])
             })
-            fileList.forEach((file) => {
+
+            const newFilesToUpload = fileList.filter((file) => !file.url)
+            newFilesToUpload.forEach((file) => {
                 const fileObject = new File([file.originFileObj], file.name, {
                     type: file.type,
                 })
                 formDataToSend.append('p_images', fileObject)
             })
 
+            const existingImageNames = fileList
+                .filter((file) => file.url)
+                .map((file) => file.name)
+
+            formDataToSend.append(
+                'existingImages',
+                JSON.stringify(existingImageNames)
+            ) // Send existing image names to backend
+
             const response = await fetch(
-                `${appConfig.apiPrefix}/add-product-cloudinary`,
+                `${appConfig.apiPrefix}/update-product/${productId}`,
                 {
-                    method: 'POST',
+                    method: 'PUT',
                     body: formDataToSend,
                 }
             )
 
             if (response.ok) {
-                // message.success('Product added successfully')
+                // message.success('Product updated successfully')
                 toast.push(
                     <Notification
-                        title={'Successfully added'}
+                        title={'Successfully updated'}
                         type="success"
                         duration={2500}
                     >
-                        Product added successfully
+                        Product updated successfully
                     </Notification>,
                     {
                         placement: 'top-center',
@@ -77,10 +126,10 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                 onSubmit()
             } else {
                 const data = await response.json()
-                // message.error(data.error || 'Failed to add product')
+                // message.error(data.error || 'Failed to update product')
                 toast.push(
                     <Notification
-                        title={'Failed to add product'}
+                        title={'Failed to update product'}
                         type="danger"
                         duration={2500}
                     >
@@ -93,14 +142,15 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
             }
             setLoading(false)
         } catch (error) {
-            // message.error('Failed to add product:', error)
+            // message.error('Failed to update product:', error)
             toast.push(
                 <Notification
-                    title={'Failed to add product'}
+                    title={'Failed to update product'}
                     type="danger"
                     duration={2500}
                 >
-                    {error}
+                    We are experiencing some technical difficulties. Please wait
+                    or try reloading the page.
                 </Notification>,
                 {
                     placement: 'top-center',
@@ -109,24 +159,10 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
             setLoading(false)
         }
     }
+
     return (
         <Form onFinish={handleSubmit}>
-            <Form.Item
-                label="Product Images"
-                name="p_images"
-                // rules={[
-                //     {
-                //         validator: (_, value) => {
-                //             if (value && value.length > 0) {
-                //                 return Promise.resolve()
-                //             }
-                //             return Promise.reject(
-                //                 new Error('Please upload at least one image')
-                //             )
-                //         },
-                //     },
-                // ]}
-            >
+            <Form.Item label="Product Images" name="p_images">
                 <Upload
                     listType="picture-card"
                     fileList={fileList}
@@ -134,6 +170,11 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                     onPreview={handlePreview}
                     accept="image/*"
                     beforeUpload={() => false}
+                    onRemove={(file) => {
+                        setFileList((prevList) =>
+                            prevList.filter((item) => item.uid !== file.uid)
+                        )
+                    }}
                 >
                     <div>
                         <UploadOutlined style={{ fontSize: '20px' }} />
@@ -182,4 +223,4 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
     )
 }
 
-export default AddProductImages
+export default EditProductImages

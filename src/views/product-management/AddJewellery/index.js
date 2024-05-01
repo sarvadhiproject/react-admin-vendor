@@ -5,12 +5,13 @@ import AddProductPrice from './AddProductPrice'
 import AddProductImages from './AddProductImages'
 import InDepthDetails from './InDepthDetails'
 import { jwtDecode } from 'jwt-decode'
+import { Button } from 'components/ui'
 
 const { Step } = Steps
 
 const token = localStorage.getItem('admin')
 
-const AddJewellery = () => {
+const AddJewellery = ({ handleClose }) => {
     if (token) {
         try {
             const decodedToken = jwtDecode(token)
@@ -117,6 +118,7 @@ const AddJewellery = () => {
             <div style={{ marginTop: '30px' }} className="steps-content">
                 {steps[current].content}
             </div>
+            <Button onClick={handleClose}>Cancle</Button>
         </div>
     )
 }

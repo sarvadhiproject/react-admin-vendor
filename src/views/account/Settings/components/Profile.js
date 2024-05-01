@@ -32,19 +32,19 @@ const validationSchema = Yup.object().shape({
         .max(12, 'Too Long!')
         .required('User Name Required'),
     email: Yup.string().email('Invalid email').required('Email Required'),
-    title: Yup.string(),
+    // title: Yup.string(),
     avatar: Yup.string(),
-    lang: Yup.string(),
-    timeZone: Yup.string(),
-    syncData: Yup.bool(),
+    // lang: Yup.string(),
+    // timeZone: Yup.string(),
+    // syncData: Yup.bool(),
 })
 
-const langOptions = [
-    { value: 'en', label: 'English (US)', imgPath: '/img/countries/us.png' },
-    { value: 'ch', label: '中文', imgPath: '/img/countries/cn.png' },
-    { value: 'jp', label: '日本语', imgPath: '/img/countries/jp.png' },
-    { value: 'fr', label: 'French', imgPath: '/img/countries/fr.png' },
-]
+// const langOptions = [
+//     { value: 'en', label: 'English (US)', imgPath: '/img/countries/us.png' },
+//     { value: 'ch', label: '中文', imgPath: '/img/countries/cn.png' },
+//     { value: 'jp', label: '日本语', imgPath: '/img/countries/jp.png' },
+//     { value: 'fr', label: 'French', imgPath: '/img/countries/fr.png' },
+// ]
 
 const CustomSelectOption = ({ innerProps, label, data, isSelected }) => {
     return (
@@ -88,7 +88,6 @@ const Profile = ({ data }) => {
     }
 
     const onFormSubmit = (values, setSubmitting) => {
-
         console.log('val', values)
         toast.push(<Notification title={'Profile updated'} type="success" />, {
             placement: 'top-center',
@@ -191,7 +190,7 @@ const Profile = ({ data }) => {
                                     }}
                                 </Field>
                             </FormRow>
-                            <FormRow
+                            {/*<FormRow
                                 name="title"
                                 label="Title"
                                 {...validatorProps}
@@ -208,7 +207,7 @@ const Profile = ({ data }) => {
                                     }
                                 />
                             </FormRow>
-                            <FormDesription
+                             <FormDesription
                                 className="mt-8"
                                 title="Preferences"
                                 desc="Your personalized preference displayed in your account"
@@ -267,7 +266,7 @@ const Profile = ({ data }) => {
                                 border={false}
                             >
                                 <Field name="syncData" component={Switcher} />
-                            </FormRow>
+                            </FormRow> */}
                             <div className="mt-4 ltr:text-right">
                                 <Button
                                     className="ltr:mr-2 rtl:ml-2"

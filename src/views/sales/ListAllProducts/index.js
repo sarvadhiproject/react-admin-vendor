@@ -1,8 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { Table, Modal, Popconfirm, message, Row, Col } from 'antd'
+import React, { useState, useEffect, useMemo } from 'react'
+import {
+    Table,
+    Modal,
+    Popconfirm,
+    message,
+    Row,
+    Col,
+    Button,
+    Tooltip,
+} from 'antd'
 import {
     InfoCircleTwoTone,
     LeftOutlined,
+    StopOutlined,
     RightOutlined,
 } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
@@ -10,6 +20,7 @@ import { HiOutlineTrash } from 'react-icons/hi'
 import { Spin } from 'antd'
 import { Notification, toast } from 'components/ui'
 const ProductList = () => {
+    const [currentPage, setCurrentPage] = useState(1)
     const [products, setProducts] = useState([])
     const [categories, setCategories] = useState({})
     const [vendors, setVendors] = useState({})
@@ -20,12 +31,10 @@ const ProductList = () => {
     const [productToDelete, setProductToDelete] = useState(null)
     const [isDeleting, setIsDeleting] = useState(false)
     useEffect(() => {
-        // Fetch product data
         fetch(`${appConfig.apiPrefix}/view-products-cloudinary`)
             .then((res) => res.json())
             .then((data) => setProducts(data))
 
-        // Fetch category data
         fetch(`${appConfig.apiPrefix}/all-categories`)
             .then((res) => res.json())
             .then((data) => {
@@ -36,7 +45,6 @@ const ProductList = () => {
                 setCategories(categoriesMap)
             })
 
-        // Fetch vendor data
         fetch(`${appConfig.apiPrefix}/view-users`)
             .then((res) => res.json())
             .then((data) => {
@@ -66,14 +74,14 @@ const ProductList = () => {
     }
     const handleConfirmDelete = () => {
         setIsDeleting(true)
-        fetch(`${appConfig.apiPrefix}/soft-delete-product/${productToDelete}`, {
+        fetch(`${appConfig.apiPrefix}/delete-product/${productToDelete}`, {
             method: 'DELETE',
         })
             .then((res) => {
                 if (res.ok) {
                     setIsDeleting(false)
                     setShowConfirmModal(false)
-                    fetchProducts() // Call the function to fetch the updated products list
+                    fetchProducts()
                     toast.push(
                         <Notification
                             title={'Successfully deleted'}
@@ -124,65 +132,100 @@ const ProductList = () => {
                 : prevIndex + 1
         )
     }
+    const indexStart = useMemo(() => {
+        const pageSize = 10 // Adjust this to your desired page size
+        return (currentPage - 1) * pageSize
+    }, [currentPage])
 
     const columns = [
         {
             title: '#',
             dataIndex: 'product_id',
             key: 'product_id',
-            render: (text, record, index) => index + 1,
+            sorter: (a, b) => a.product_id - b.product_id,
+            render: (text, record, index) => indexStart + index + 1,
         },
         {
             title: 'Product Name',
             dataIndex: 'product_name',
             key: 'product_name',
+            sorter: (a, b) => a.product_name.localeCompare(b.product_name),
         },
         {
             title: 'Category',
             dataIndex: 'category_id',
             key: 'category_id',
             render: (categoryId) => categories[categoryId],
+            sorter: (a, b) =>
+                categories[a.category_id].localeCompare(
+                    categories[b.category_id]
+                ),
         },
         {
             title: 'Vendor',
             dataIndex: 'vendor_id',
             key: 'vendor_id',
             render: (vendorId) => vendors[vendorId],
+            sorter: (a, b) =>
+                vendors[a.vendor_id].localeCompare(vendors[b.vendor_id]),
         },
         {
             title: 'Purity',
             dataIndex: 'purity',
             key: 'purity',
+            sorter: (a, b) => {
+                const purityValues = ['24k', '22k', '18k', '14k', '10k']
+                return (
+                    purityValues.indexOf(a.purity) -
+                    purityValues.indexOf(b.purity)
+                )
+            },
         },
         {
             title: 'MRP (Rs.)',
             dataIndex: 'mrp',
             key: 'mrp',
+            sorter: (a, b) => a.mrp - b.mrp,
         },
         {
             title: 'Selling Price (Rs.)',
             dataIndex: 'selling_price',
             key: 'selling_price',
+            sorter: (a, b) => a.selling_price - b.selling_price,
         },
         {
             title: 'Vendor Price (Rs.)',
             dataIndex: 'vendor_price',
             key: 'vendor_price',
+            sorter: (a, b) => a.vendor_price - b.vendor_price,
         },
         {
             title: 'Stock Quantity',
             dataIndex: 'stock_quantity',
             key: 'stock_quantity',
+            sorter: (a, b) => a.stock_quantity - b.stock_quantity,
+            render: (value) => (
+                <span
+                    style={{
+                        color: value < 3 ? 'red' : 'green',
+                        fontWeight: '600',
+                    }}
+                >
+                    {value}
+                </span>
+            ),
         },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <div style={{ display: 'flex' }}>
-                    <InfoCircleTwoTone
-                        onClick={() => handleDetailView(record)}
-                        style={{ marginRight: '20px' }}
-                    />
+                    <Tooltip title="Detailed View">
+                        <InfoCircleTwoTone
+                            onClick={() => handleDetailView(record)}
+                            style={{ marginRight: '20px' }}
+                        />
+                    </Tooltip>
                     {/* <Popconfirm
                         title="Are you sure you want to delete this product?"
                         onConfirm={() => handleDelete(record.product_id)}
@@ -193,14 +236,12 @@ const ProductList = () => {
                             style={{ color: 'red', fontSize: '18px' }}
                         />
                     </Popconfirm> */}
-                    <HiOutlineTrash
-                        style={{
-                            color: 'red',
-                            fontSize: '18px',
-                            cursor: 'pointer',
-                        }}
-                        onClick={() => handleDelete(record)}
-                    />
+                    <Tooltip title="Deactivate product">
+                        <StopOutlined
+                            style={{ color: 'red' }}
+                            onClick={() => handleDelete(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },
@@ -208,20 +249,24 @@ const ProductList = () => {
 
     return (
         <>
-            <h3 style={{ marginBottom: '20px' }}>Manage products</h3>
+            <h3 style={{ marginBottom: '20px' }}>Manage Products</h3>
             <Table
                 dataSource={products}
                 columns={columns}
+                pagination={{
+                    current: currentPage,
+                    onChange: (page) => setCurrentPage(page),
+                }}
                 rowKey="product_id"
                 size="small"
                 // bordered={true}
             />
             <Modal
-                title="Confirm Deletion"
+                title={<h4>Confirm Deactivation</h4>}
                 open={showConfirmModal}
                 onOk={handleConfirmDelete}
                 onCancel={() => setShowConfirmModal(false)}
-                okText="Delete"
+                okText="Deactivate"
                 cancelText="Cancel"
                 okButtonProps={{
                     loading: isDeleting,
@@ -233,7 +278,11 @@ const ProductList = () => {
                 }}
                 cancelButtonProps={{ style: { borderColor: '#1890ff' } }}
             >
-                <p>Are you sure you want to delete this product?</p>
+                <p>
+                    Are you sure you want to deactivate this product? The
+                    product will no longer visible to users. This action cannot
+                    be undone.
+                </p>
             </Modal>
             <Modal
                 title={<h4>Product Details</h4>}

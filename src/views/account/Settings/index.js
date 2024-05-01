@@ -73,11 +73,11 @@ const Settings = () => {
                         {currentTab === 'password' && (
                             <Password data={data.loginHistory} />
                         )}
-                        {currentTab === 'notification' && (
+                        {/* {currentTab === 'notification' && (
                             <NotificationSetting data={data.notification} />
-                        )}
-                        {currentTab === 'integration' && <Integration />}
-                        {currentTab === 'billing' && <Billing />}
+                        )} */}
+                        {/* {currentTab === 'integration' && <Integration />} */}
+                        {/* {currentTab === 'billing' && <Billing />} */}
                     </Suspense>
                 </div>
             </AdaptableCard>

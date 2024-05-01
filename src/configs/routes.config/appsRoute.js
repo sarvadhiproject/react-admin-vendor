@@ -41,10 +41,10 @@ const appsRoute = [
         authority: [ADMIN, USER],
     },
     {
-        key: 'appsSales.orderList',
+        key: 'orderList',
         path: `${APP_PREFIX_PATH}/sales/order-list`,
         component: React.lazy(() => import('views/sales/OrderList')),
-        authority: [ADMIN, USER],
+        authority: [ADMIN, VENDOR],
     },
     {
         key: 'appsSales.orderDetails',

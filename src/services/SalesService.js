@@ -44,7 +44,7 @@ export async function apiCreateSalesProduct(data) {
 
 export async function apiGetSalesOrders(params) {
     return ApiService.fetchData({
-        url: '/sales/orders',
+        // url: '/sales/orders',
         method: 'get',
         params,
     })

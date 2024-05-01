@@ -18,27 +18,36 @@ import {
     HiOutlineDeviceTablet,
 } from 'react-icons/hi'
 import dayjs from 'dayjs'
+import axios from 'axios'
 import * as Yup from 'yup'
+import { jwtDecode } from 'jwt-decode'
+import appConfig from 'configs/app.config'
 
-const LoginHistoryIcon = ({ type }) => {
-    switch (type) {
-        case 'Desktop':
-            return <HiOutlineDesktopComputer />
-        case 'Mobile':
-            return <HiOutlineDeviceMobile />
-        case 'Tablet':
-            return <HiOutlineDeviceTablet />
-        default:
-            return <HiOutlineDesktopComputer />
-    }
-}
+// const LoginHistoryIcon = ({ type }) => {
+//     switch (type) {
+//         case 'Desktop':
+//             return <HiOutlineDesktopComputer />
+//         case 'Mobile':
+//             return <HiOutlineDeviceMobile />
+//         case 'Tablet':
+//             return <HiOutlineDeviceTablet />
+//         default:
+//             return <HiOutlineDesktopComputer />
+//     }
+// }
+const token = localStorage.getItem('admin')
+const decodedToken = jwtDecode(token)
+var vendorID = decodedToken.id
 
 const validationSchema = Yup.object().shape({
-    password: Yup.string().required('Password Required'),
+    currentPassword: Yup.string().required('Current password Required'),
     newPassword: Yup.string()
         .required('Enter your new password')
         .min(8, 'Too Short!')
-        .matches(/^[A-Za-z0-9_-]*$/, 'Only Letters & Numbers Allowed'),
+        .matches(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+            'Valid password format (e.g., Abcd@1234)'
+        ),
     confirmNewPassword: Yup.string().oneOf(
         [Yup.ref('newPassword'), null],
         'Password not match'
@@ -52,7 +61,51 @@ const Password = ({ data }) => {
         })
         setSubmitting(false)
     }
+    const handleChangePassword = async (values, setSubmitting) => {
+        try {
+            const { currentPassword, newPassword } = values
 
+            // Make the API request to change the password
+            const response = await axios.post(
+                `${appConfig.apiPrefix}/change-password/${vendorID}`,
+                {
+                    currentPassword,
+                    newPassword,
+                }
+            )
+
+            // Handle the successful response
+            if (response.data.success) {
+                onFormSubmit(values, setSubmitting)
+            } else {
+                // Handle the error response
+                console.error(response.data.error)
+                toast.push(
+                    <Notification
+                        title={'Error changing password'}
+                        type="danger"
+                    />,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+                setSubmitting(false)
+            }
+        } catch (error) {
+            // Handle the network or other errors
+            console.error('Error changing password:', error)
+            toast.push(
+                <Notification
+                    title={'Error changing password'}
+                    type="danger"
+                />,
+                {
+                    placement: 'top-center',
+                }
+            )
+            setSubmitting(false)
+        }
+    }
     return (
         <>
             <Formik
@@ -64,9 +117,10 @@ const Password = ({ data }) => {
                 validationSchema={validationSchema}
                 onSubmit={(values, { setSubmitting }) => {
                     setSubmitting(true)
-                    setTimeout(() => {
-                        onFormSubmit(values, setSubmitting)
-                    }, 1000)
+                    // setTimeout(() => {
+                    //     onFormSubmit(values, setSubmitting)
+                    // }, 1000)
+                    handleChangePassword(values, setSubmitting)
                 }}
             >
                 {({ values, touched, errors, isSubmitting, resetForm }) => {
@@ -86,7 +140,7 @@ const Password = ({ data }) => {
                                     <Field
                                         type="password"
                                         autoComplete="off"
-                                        name="password"
+                                        name="currentPassword"
                                         placeholder="Current Password"
                                         component={Input}
                                     />
@@ -140,7 +194,7 @@ const Password = ({ data }) => {
                     )
                 }}
             </Formik>
-            <div className="mt-6">
+            {/* <div className="mt-6">
                 <FormDesription
                     title="Where you're signed in"
                     desc="You're signed in to your account on these devices."
@@ -186,7 +240,7 @@ const Password = ({ data }) => {
                         ))}
                     </div>
                 )}
-            </div>
+            </div> */}
         </>
     )
 }
