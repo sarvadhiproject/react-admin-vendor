@@ -8,6 +8,8 @@ import {
     Col,
     Button,
     Tooltip,
+    Input,
+    Empty,
 } from 'antd'
 import {
     InfoCircleTwoTone,
@@ -19,6 +21,16 @@ import appConfig from 'configs/app.config'
 import { HiOutlineTrash } from 'react-icons/hi'
 import { Spin } from 'antd'
 import { Notification, toast } from 'components/ui'
+import NumberFormat from 'react-number-format'
+import styled from 'styled-components'
+
+const TableContainer = styled.div`
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`
+
 const ProductList = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [products, setProducts] = useState([])
@@ -30,6 +42,9 @@ const ProductList = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [productToDelete, setProductToDelete] = useState(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [pageSize, setPageSize] = useState(10)
+
     useEffect(() => {
         fetch(`${appConfig.apiPrefix}/view-products-cloudinary`)
             .then((res) => res.json())
@@ -67,11 +82,25 @@ const ProductList = () => {
             .then((data) => setProducts(data))
             .catch((error) => console.error('Error:', error))
     }
-
+    const filteredProducts = useMemo(() => {
+        const lowercaseQuery = searchQuery.toLowerCase()
+        return products.filter(
+            (product) =>
+                (vendors[product.vendor_id] || '')
+                    .toLowerCase()
+                    .includes(lowercaseQuery) ||
+                product.product_name.toLowerCase().includes(lowercaseQuery)
+        )
+    }, [products, searchQuery, vendors])
     const handleDelete = (record) => {
         setProductToDelete(record.product_id)
         setShowConfirmModal(true)
     }
+    const handlePageSizeChange = (current, size) => {
+        setPageSize(Number(size))
+        setCurrentPage(1) // Reset to the first page when page size changes
+    }
+
     const handleConfirmDelete = () => {
         setIsDeleting(true)
         fetch(`${appConfig.apiPrefix}/delete-product/${productToDelete}`, {
@@ -133,9 +162,8 @@ const ProductList = () => {
         )
     }
     const indexStart = useMemo(() => {
-        const pageSize = 10 // Adjust this to your desired page size
         return (currentPage - 1) * pageSize
-    }, [currentPage])
+    }, [currentPage, pageSize])
 
     const columns = [
         {
@@ -143,19 +171,24 @@ const ProductList = () => {
             dataIndex: 'product_id',
             key: 'product_id',
             sorter: (a, b) => a.product_id - b.product_id,
-            render: (text, record, index) => indexStart + index + 1,
+            render: (text, record, index) => (
+                <span style={{ color: '#666' }}>{indexStart + index + 1}</span>
+            ),
         },
         {
             title: 'Product Name',
             dataIndex: 'product_name',
             key: 'product_name',
             sorter: (a, b) => a.product_name.localeCompare(b.product_name),
+            render: (text) => <span style={{ color: '#666' }}>{text}</span>,
         },
         {
             title: 'Category',
             dataIndex: 'category_id',
             key: 'category_id',
-            render: (categoryId) => categories[categoryId],
+            render: (categoryId) => (
+                <span style={{ color: '#666' }}>{categories[categoryId]}</span>
+            ),
             sorter: (a, b) =>
                 categories[a.category_id].localeCompare(
                     categories[b.category_id]
@@ -165,7 +198,9 @@ const ProductList = () => {
             title: 'Vendor',
             dataIndex: 'vendor_id',
             key: 'vendor_id',
-            render: (vendorId) => vendors[vendorId],
+            render: (vendorId) => (
+                <span style={{ color: '#666' }}>{vendors[vendorId]}</span>
+            ),
             sorter: (a, b) =>
                 vendors[a.vendor_id].localeCompare(vendors[b.vendor_id]),
         },
@@ -173,6 +208,7 @@ const ProductList = () => {
             title: 'Purity',
             dataIndex: 'purity',
             key: 'purity',
+            render: (text) => <span style={{ color: '#666' }}>{text}</span>,
             sorter: (a, b) => {
                 const purityValues = ['24k', '22k', '18k', '14k', '10k']
                 return (
@@ -186,18 +222,51 @@ const ProductList = () => {
             dataIndex: 'mrp',
             key: 'mrp',
             sorter: (a, b) => a.mrp - b.mrp,
+            render: (text) => (
+                <NumberFormat
+                    displayType="text"
+                    value={(Math.round(text * 100) / 100).toFixed(2)}
+                    prefix={'₹'}
+                    thousandSeparator={true}
+                    renderText={(value) => (
+                        <span style={{ color: '#666' }}>{value}</span>
+                    )}
+                />
+            ),
         },
         {
             title: 'Selling Price (Rs.)',
             dataIndex: 'selling_price',
             key: 'selling_price',
             sorter: (a, b) => a.selling_price - b.selling_price,
+            render: (text) => (
+                <NumberFormat
+                    displayType="text"
+                    value={(Math.round(text * 100) / 100).toFixed(2)}
+                    prefix={'₹'}
+                    thousandSeparator={true}
+                    renderText={(value) => (
+                        <span style={{ color: '#666' }}>{value}</span>
+                    )}
+                />
+            ),
         },
         {
             title: 'Vendor Price (Rs.)',
             dataIndex: 'vendor_price',
             key: 'vendor_price',
             sorter: (a, b) => a.vendor_price - b.vendor_price,
+            render: (text) => (
+                <NumberFormat
+                    displayType="text"
+                    value={(Math.round(text * 100) / 100).toFixed(2)}
+                    prefix={'₹'}
+                    thousandSeparator={true}
+                    renderText={(value) => (
+                        <span style={{ color: '#666' }}>{value}</span>
+                    )}
+                />
+            ),
         },
         {
             title: 'Stock Quantity',
@@ -207,7 +276,7 @@ const ProductList = () => {
             render: (value) => (
                 <span
                     style={{
-                        color: value < 3 ? 'red' : 'green',
+                        color: value <= 3 ? 'red' : 'green',
                         fontWeight: '600',
                     }}
                 >
@@ -249,18 +318,53 @@ const ProductList = () => {
 
     return (
         <>
-            <h3 style={{ marginBottom: '20px' }}>Manage Products</h3>
-            <Table
-                dataSource={products}
-                columns={columns}
-                pagination={{
-                    current: currentPage,
-                    onChange: (page) => setCurrentPage(page),
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px',
                 }}
-                rowKey="product_id"
-                size="small"
-                // bordered={true}
-            />
+            >
+                <h3>Manage Products</h3>
+                <div>
+                    <Input.Search
+                        placeholder="Search by vendor or product"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ width: 272 }}
+                        size="large"
+                    />
+                </div>
+            </div>
+            {filteredProducts.length > 0 ? (
+                // <TableContainer>
+                <Table
+                    dataSource={filteredProducts}
+                    columns={columns}
+                    pagination={{
+                        position: ['bottomLeft', 'bottomRight'],
+                        current: currentPage,
+                        onChange: (page) => setCurrentPage(page),
+                        pageSize: pageSize,
+                        pageSizeOptions: ['5', '10', '20', '50'],
+                        onShowSizeChange: handlePageSizeChange,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} of ${total} items`,
+                    }}
+                    rowKey="product_id"
+                    size="small"
+                    // bordered={true}
+                />
+            ) : (
+                // </TableContainer>
+                <Empty
+                    style={{ fontWeight: '350' }}
+                    description="No products found!"
+                />
+            )}
             <Modal
                 title={<h4>Confirm Deactivation</h4>}
                 open={showConfirmModal}

@@ -58,11 +58,18 @@ const Settings = () => {
             <AdaptableCard>
                 <Tabs value={currentTab} onChange={(val) => onTabChange(val)}>
                     <TabList>
-                        {Object.keys(settingsMenu).map((key) => (
+                        {/* {Object.keys(settingsMenu).map((key) => (
                             <TabNav key={key} value={key}>
                                 {settingsMenu[key].label}
                             </TabNav>
-                        ))}
+                        ))} */}
+                        {Object.keys(settingsMenu)
+                            .slice(0, 2)
+                            .map((key) => (
+                                <TabNav key={key} value={key}>
+                                    {settingsMenu[key].label}
+                                </TabNav>
+                            ))}
                     </TabList>
                 </Tabs>
                 <div className="px-4 py-6">
@@ -73,11 +80,11 @@ const Settings = () => {
                         {currentTab === 'password' && (
                             <Password data={data.loginHistory} />
                         )}
-                        {/* {currentTab === 'notification' && (
+                        {currentTab === 'notification' && (
                             <NotificationSetting data={data.notification} />
-                        )} */}
-                        {/* {currentTab === 'integration' && <Integration />} */}
-                        {/* {currentTab === 'billing' && <Billing />} */}
+                        )}
+                        {currentTab === 'integration' && <Integration />}
+                        {currentTab === 'billing' && <Billing />}
                     </Suspense>
                 </div>
             </AdaptableCard>

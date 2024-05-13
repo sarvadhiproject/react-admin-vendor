@@ -30,13 +30,14 @@ const SignInForm = (props) => {
     const {
         disableSubmit = false,
         className,
+        AdminLogin,
         // forgotPasswordUrl = '/forgot-password',
         signUpUrl = '/sign-up',
     } = props
 
     const [message, setMessage] = useTimeOutMessage()
 
-    const { signIn } = useAuth()
+    const { signIn } = useAuth({ AdminLogin })
 
     const onSignIn = async (values, setSubmitting) => {
         const { email, password } = values

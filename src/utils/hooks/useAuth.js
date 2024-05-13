@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import useQuery from './useQuery'
 import { ADMIN } from 'constants/roles.constant'
 
-function useAuth() {
+function useAuth({ AdminLogin } = {}) {
     const dispatch = useDispatch()
 
     const navigate = useNavigate()
@@ -18,7 +18,15 @@ function useAuth() {
 
     const signIn = async (values) => {
         try {
-            const resp = await apiSignIn(values)
+            let resp
+
+            if (AdminLogin) {
+                // If AdminLogin prop is provided, use that API
+                resp = await apiSignIn(AdminLogin, values)
+            } else {
+                // Else, use the default API
+                resp = await apiSignIn(values)
+            }
             if (resp.data) {
                 console.log(resp)
                 const { token } = resp.data

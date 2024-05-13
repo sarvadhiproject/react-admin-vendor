@@ -16,7 +16,6 @@ const VerticalMenuIcon = ({ icon, gutter }) => {
 
     return (
         <span
-            style={{ color: 'white' }}
             className={`text-2xl ${gutter ? 'ltr:mr-2 rtl:ml-2' : ''}`}
         >
             {navigationIcon[icon]}

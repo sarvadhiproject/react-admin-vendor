@@ -1,3 +1,9 @@
 .font {
-    color: 'white';
+    color: white !important;
+}
+
+.font:hover {
+    color: #03214ff3 !important;
+    /* text-shadow: slategray; */
+    background-color: whitesmoke !important;
 }

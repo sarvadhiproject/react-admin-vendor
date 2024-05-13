@@ -13,7 +13,7 @@ const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('Please enter your first name'),
     last_name: Yup.string().required('Please enter your last name'),
     phoneno: Yup.string()
-        .matches(/^[0-9]{10}$/, 'Phno. must be 10 digits')
+        .matches(/^[6789]\d{9}$/, 'Invalid phone number')
         .required('Phone no. is required'),
     company_name: Yup.string().required('Please enter your company name'),
     state: Yup.string().required('Select your state'),
@@ -25,16 +25,16 @@ const validationSchema = Yup.object().shape({
     email: Yup.string()
         .email('Valid email format (e.g., abc12@gmail.com)')
         .required('Please enter your email'),
-    password: Yup.string()
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            'Valid password format (e.g., Abcd@1234)'
-        )
-        .required('Please enter your password'),
-    confirmPassword: Yup.string().oneOf(
-        [Yup.ref('password'), null],
-        'Your passwords do not match'
-    ),
+    // password: Yup.string()
+    //     .matches(
+    //         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    //         'Valid password format (e.g., Abcd@1234)'
+    //     )
+    //     .required('Please enter your password'),
+    // confirmPassword: Yup.string().oneOf(
+    //     [Yup.ref('password'), null],
+    //     'Your passwords do not match'
+    // ),
 })
 
 const indianStates = [
@@ -88,7 +88,7 @@ const SignUpForm = (props) => {
             state,
             gstno,
             address,
-            password,
+            // password,
             email,
         } = values
         setSubmitting(true)
@@ -101,7 +101,7 @@ const SignUpForm = (props) => {
                 state,
                 gstno,
                 address,
-                password,
+                // password,
                 email,
             })
 
@@ -133,8 +133,8 @@ const SignUpForm = (props) => {
                     gstno: '',
                     address: '',
                     email: '',
-                    password: '',
-                    confirmPassword: '',
+                    // password: '',
+                    // confirmPassword: '',
                 }}
                 validationSchema={validationSchema}
                 onSubmit={(values, { setSubmitting }) => {
@@ -277,14 +277,13 @@ const SignUpForm = (props) => {
 
                             <FormItem
                                 className="mt-4"
-                                label="address"
+                                label="Address"
                                 invalid={errors.address && touched.address}
                                 errorMessage={errors.address}
                             >
                                 <Field
                                     as="textarea"
                                     name="address"
-                                    placeholder="address"
                                     rows={3}
                                     className={`resize-none w-full ${
                                         errors.address && touched.address
@@ -308,7 +307,7 @@ const SignUpForm = (props) => {
                                     component={Input}
                                 />
                             </FormItem>
-                            <div className="flex">
+                            {/* <div className="flex">
                                 <FormItem
                                     label="Password"
                                     className="w-1/2 mr-4"
@@ -341,7 +340,7 @@ const SignUpForm = (props) => {
                                         component={PasswordInput}
                                     />
                                 </FormItem>
-                            </div>
+                            </div> */}
                             <Button
                                 block
                                 loading={isSubmitting}

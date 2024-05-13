@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import VerticalMenuIcon from './VerticalMenuIcon'
 import { Trans } from 'react-i18next'
 import { AuthorityCheck } from 'components/shared'
+import './fonts.css'
 
 const { MenuItem, MenuCollapse } = Menu
 
@@ -14,7 +15,7 @@ const DefaultItem = ({ nav, onLinkClick, userAuthority }) => {
                 label={
                     <>
                         <VerticalMenuIcon icon={nav.icon} />
-                        <span style={{ color: 'white' }}>
+                        <span>
                             <Trans
                                 i18nKey={nav.translateKey}
                                 defaults={nav.title}
@@ -25,7 +26,7 @@ const DefaultItem = ({ nav, onLinkClick, userAuthority }) => {
                 key={nav.key}
                 eventKey={nav.key}
                 expanded={false}
-                className="mb-2"
+                className="mb-2 font hov"
             >
                 {nav.subMenu.map((subNav) => (
                     <AuthorityCheck
@@ -33,10 +34,10 @@ const DefaultItem = ({ nav, onLinkClick, userAuthority }) => {
                         authority={subNav.authority}
                         key={subNav.key}
                     >
-                        <MenuItem eventKey={subNav.key}>
+                        <MenuItem eventKey={subNav.key} className="font hov">
                             {subNav.path ? (
                                 <Link
-                                    className="h-full w-full flex items-center font"
+                                    className="h-full w-full flex items-center"
                                     onClick={() =>
                                         onLinkClick?.({
                                             key: subNav.key,
@@ -46,16 +47,15 @@ const DefaultItem = ({ nav, onLinkClick, userAuthority }) => {
                                     }
                                     to={subNav.path}
                                 >
-                                    <span style={{ color: 'white' }}>
-                                        {/* <Trans
+                                    <span>
+                                        <Trans
                                             i18nKey={subNav.translateKey}
                                             defaults={subNav.title}
-                                        /> */}
-                                        {subNav.title}
+                                        />
                                     </span>
                                 </Link>
                             ) : (
-                                <span style={{ color: 'white' }}>
+                                <span>
                                     <Trans
                                         i18nKey={subNav.translateKey}
                                         defaults={subNav.title}
@@ -72,7 +72,7 @@ const DefaultItem = ({ nav, onLinkClick, userAuthority }) => {
 
 const CollapsedItem = ({ nav, onLinkClick, userAuthority, direction }) => {
     const menuItem = (
-        <MenuItem key={nav.key} eventKey={nav.key} className="mb-2">
+        <MenuItem key={nav.key} eventKey={nav.key} className="mb-2 font">
             <VerticalMenuIcon icon={nav.icon} />
         </MenuItem>
     )
@@ -105,7 +105,7 @@ const CollapsedItem = ({ nav, onLinkClick, userAuthority, direction }) => {
                                     }
                                     to={subNav.path}
                                 >
-                                    <span style={{ color: 'white' }}>
+                                    <span>
                                         <Trans
                                             i18nKey={subNav.translateKey}
                                             defaults={subNav.title}
@@ -113,7 +113,7 @@ const CollapsedItem = ({ nav, onLinkClick, userAuthority, direction }) => {
                                     </span>
                                 </Link>
                             ) : (
-                                <span style={{ color: 'white' }}>
+                                <span>
                                     <Trans
                                         i18nKey={subNav.translateKey}
                                         defaults={subNav.title}

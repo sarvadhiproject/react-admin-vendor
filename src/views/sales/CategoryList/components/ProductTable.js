@@ -1,9 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Avatar, Badge, Button, Notification, toast } from 'components/ui'
 import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts } from '../store/dataSlice'
-import { Table, Space, message, Modal, Form, Input, Upload } from 'antd'
+import {
+    Table,
+    Space,
+    message,
+    Modal,
+    Form,
+    Input,
+    Upload,
+    Tooltip,
+} from 'antd'
 import appConfig from 'configs/app.config'
 import { UploadOutlined } from '@ant-design/icons'
 
@@ -29,6 +38,7 @@ const uploadButton = (
     </div>
 )
 const ProductTable = () => {
+    const [currentPage, setCurrentPage] = useState(1)
     const [showEditModal, setShowEditModal] = useState(false)
     const [editingCategory, setEditingCategory] = useState(null)
     const [deleteCategoryId, setDeleteCategoryId] = useState(null)
@@ -123,6 +133,10 @@ const ProductTable = () => {
             )
         }
     }
+    const indexStart = useMemo(() => {
+        const pageSize = 10 // Adjust this to your desired page size
+        return (currentPage - 1) * pageSize
+    }, [currentPage])
     const columns = [
         {
             // title: 'Category ID',
@@ -130,7 +144,9 @@ const ProductTable = () => {
             dataIndex: 'category_id',
             key: 'category_id',
             // sorter: (a, b) => a.category_id - b.category_id,
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) => (
+                <span style={{ color: '#666' }}>{indexStart + index + 1}</span>
+            ),
         },
         {
             title: 'Image',
@@ -155,6 +171,7 @@ const ProductTable = () => {
             dataIndex: 'category_name',
             key: 'category_name',
             // sorter: (a, b) => a.category_name.localeCompare(b.category_name),
+            render: (text) => <span style={{ color: '#666' }}>{text}</span>,
         },
         {
             title: 'Action',
@@ -165,24 +182,28 @@ const ProductTable = () => {
                         className="action-icon"
                         onClick={() => handleEdit(record)}
                     >
-                        <HiOutlinePencil
-                            size={20}
-                            style={{
-                                marginLeft: '20px',
-                                color: 'blue',
-                                cursor: 'pointer',
-                                marginRight: '10px',
-                            }}
-                        />
+                        <Tooltip title="Edit Category">
+                            <HiOutlinePencil
+                                size={20}
+                                style={{
+                                    marginLeft: '20px',
+                                    color: 'blue',
+                                    cursor: 'pointer',
+                                    marginRight: '10px',
+                                }}
+                            />
+                        </Tooltip>
                     </span>
                     <span
                         className="action-icon"
                         onClick={() => handleDelete(record)}
                     >
-                        <HiOutlineTrash
-                            size={20}
-                            style={{ color: 'red', cursor: 'pointer' }}
-                        />
+                        <Tooltip title="Delete Category">
+                            <HiOutlineTrash
+                                size={20}
+                                style={{ color: 'red', cursor: 'pointer' }}
+                            />
+                        </Tooltip>
                     </span>
                 </Space>
             ),
@@ -303,7 +324,7 @@ const ProductTable = () => {
                 </Form>
             </Modal>
             <Modal
-                title="Confirm Deletion"
+                title={<h4>Confirm Deletion</h4>}
                 open={showConfirmation}
                 onOk={handleDeleteConfirmation}
                 onCancel={() => setShowConfirmation(false)}
@@ -318,7 +339,7 @@ const ProductTable = () => {
                 cancelButtonProps={{ style: { borderColor: '#1890ff' } }}
             >
                 <p style={{ fontSize: '16px' }}>
-                    Are you sure you want to delete this category? All record
+                    Are you sure you want to delete this category? All products
                     related to this category will be deleted as well. This
                     action cannot be undone.
                 </p>
@@ -331,7 +352,10 @@ const ProductTable = () => {
                 size="small"
                 columns={columns}
                 dataSource={data}
-                pagination={true}
+                pagination={{
+                    current: currentPage,
+                    onChange: (page) => setCurrentPage(page),
+                }}
             />
         </>
     )

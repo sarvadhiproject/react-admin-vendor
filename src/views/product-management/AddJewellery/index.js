@@ -59,6 +59,7 @@ const AddJewellery = ({ handleClose }) => {
         // Reset form data and current step
         setFormData({})
         setCurrent(0)
+        handleClose()
     }
 
     const steps = [
@@ -118,7 +119,7 @@ const AddJewellery = ({ handleClose }) => {
             <div style={{ marginTop: '30px' }} className="steps-content">
                 {steps[current].content}
             </div>
-            <Button onClick={handleClose}>Cancle</Button>
+            <Button onClick={handleClose}>Cancel</Button>
         </div>
     )
 }

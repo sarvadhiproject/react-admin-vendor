@@ -13,8 +13,29 @@ import {
 import useMenuActive from 'utils/hooks/useMenuActive'
 import { useTranslation } from 'react-i18next'
 import './fonts.css'
+import { jwtDecode } from 'jwt-decode'
 
 const { MenuGroup } = Menu
+
+const token = localStorage.getItem('admin')
+const decodedToken = jwtDecode(token)
+var role = decodedToken.role
+// console.log(role)
+var user = ''
+if (role == 1) {
+    user = (
+        <span style={{ fontWeight: '400', fontFamily: 'sans-serif' }}>
+            dashboard
+        </span>
+    )
+} else if (role == 3) {
+    user = (
+        <span style={{ fontWeight: '400', fontFamily: 'sans-serif' }}>
+            dashboard
+        </span>
+    )
+}
+// console.log(user)
 
 const VerticalMenuContent = (props) => {
     const {
@@ -79,7 +100,8 @@ const VerticalMenuContent = (props) => {
                         userAuthority={userAuthority}
                         authority={nav.authority}
                     >
-                        <MenuGroup label={t(nav.translateKey) || nav.title}>
+                        {/* <MenuGroup label={t(nav.translateKey) || nav.title}>        //ORIGINAL        */}
+                        <MenuGroup label={user}>
                             {nav.subMenu.map((subNav) =>
                                 subNav.subMenu.length > 0 ? (
                                     <VerticalCollapsedMenuItem

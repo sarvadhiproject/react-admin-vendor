@@ -13,9 +13,10 @@ const SignInSimple = (props) => {
             }
         >
             <SignInForm
-                disableSubmit={true}
-                signUpUrl="/auth/sign-up-simple"
-                forgotPasswordUrl="/auth/forgot-password-simple"
+                disableSubmit={false}
+                AdminLogin={true}
+                // signUpUrl="/auth/sign-up-simple"
+                //forgotPasswordUrl="/auth/forgot-password-simple"
                 {...props}
             />
         </Simple>

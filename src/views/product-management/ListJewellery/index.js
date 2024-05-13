@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Table, Modal, message, Row, Col } from 'antd'
+import { Table, Modal, message, Row, Col, Tooltip, Empty } from 'antd'
 import {
     InfoCircleTwoTone,
     LeftOutlined,
     EditOutlined,
+    LoadingOutlined,
     RightOutlined,
 } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
 import { HiOutlineTrash, HiPlusCircle } from 'react-icons/hi'
-import { Spin } from 'antd'
+import { Spin, Input } from 'antd'
 import { Button, Notification, toast } from 'components/ui'
 import { jwtDecode } from 'jwt-decode'
 import EditJewellery from '../EditJewellery'
 import AddJewellery from '../AddJewellery'
+import NumberFormat from 'react-number-format'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -33,16 +35,27 @@ const ListJewellery = () => {
     const [selectedProductId, setSelectedProductId] = useState(null)
     const [allData, setAllData] = useState({})
     const [isAddJewelleryOpen, setIsAddJewelleryOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
 
     useEffect(() => {
         setIsLoading(true)
         // Fetch product data
         fetch(`${appConfig.apiPrefix}/products-by-vendor/${vendorID}`)
             .then((res) => res.json())
-            .then((data) => setProducts(data))
-        setIsLoading(false)
+            .then((data) => {
+                if (Array.isArray(data)) {
+                    setProducts(data)
+                } else if (
+                    data.message === 'No products found for this vendor'
+                ) {
+                    setProducts([])
+                } else {
+                    console.error('Unexpected response from the server:', data)
+                }
+            })
+            .catch((error) => console.error('Error:', error))
+            .finally(() => setIsLoading(false))
 
-        // Fetch category data
         fetch(`${appConfig.apiPrefix}/all-categories`)
             .then((res) => res.json())
             .then((data) => {
@@ -118,6 +131,7 @@ const ListJewellery = () => {
     }
     const handleCloseAddJewellery = () => {
         setIsAddJewelleryOpen(false)
+        fetchProducts()
     }
 
     const handlePrevImage = () => {
@@ -139,6 +153,11 @@ const ListJewellery = () => {
         setIsEditMode(true)
         setSelectedProductId(productId)
     }
+
+    const filteredProducts = products.filter((product) =>
+        product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
     const indexStart = useMemo(() => {
         const pageSize = 10 // Adjust this to your desired page size
         return (currentPage - 1) * pageSize
@@ -185,18 +204,51 @@ const ListJewellery = () => {
             dataIndex: 'mrp',
             key: 'mrp',
             sorter: (a, b) => a.mrp - b.mrp,
+            render: (text) => (
+                <NumberFormat
+                    displayType="text"
+                    value={(Math.round(text * 100) / 100).toFixed(2)}
+                    prefix={'₹'}
+                    thousandSeparator={true}
+                    renderText={(value) => (
+                        <span style={{ color: '#666' }}>{value}</span>
+                    )}
+                />
+            ),
         },
         {
             title: 'Selling Price (Rs.)',
             dataIndex: 'selling_price',
             key: 'selling_price',
             sorter: (a, b) => a.selling_price - b.selling_price,
+            render: (text) => (
+                <NumberFormat
+                    displayType="text"
+                    value={(Math.round(text * 100) / 100).toFixed(2)}
+                    prefix={'₹'}
+                    thousandSeparator={true}
+                    renderText={(value) => (
+                        <span style={{ color: '#666' }}>{value}</span>
+                    )}
+                />
+            ),
         },
         {
             title: 'Vendor Price (Rs.)',
             dataIndex: 'vendor_price',
             key: 'vendor_price',
             sorter: (a, b) => a.vendor_price - b.vendor_price,
+            render: (text) => (
+                <NumberFormat
+                    displayType="text"
+                    value={(Math.round(text * 100) / 100).toFixed(2)}
+                    prefix={'₹'}
+                    thousandSeparator={true}
+                    renderText={(value) => (
+                        <span style={{ color: '#666' }}>{value}</span>
+                    )}
+                />
+            ),
         },
         {
             title: 'Stock Quantity',
@@ -219,31 +271,37 @@ const ListJewellery = () => {
             key: 'action',
             render: (_, record) => (
                 <div style={{ display: 'flex' }}>
-                    <InfoCircleTwoTone
-                        onClick={() => handleDetailView(record)}
-                        style={{ marginRight: '20px' }}
-                    />
-                    <EditOutlined
-                        style={{
-                            marginRight: '20px',
-                            color: '#022B4E',
-                            // color: '#1890ff',
-                            fontSize: '18px',
-                            cursor: 'pointer',
-                        }}
-                        onClick={() => {
-                            setAllData(record)
-                            handleEditClick(record.product_id)
-                        }}
-                    />
-                    <HiOutlineTrash
-                        style={{
-                            color: 'red',
-                            fontSize: '18px',
-                            cursor: 'pointer',
-                        }}
-                        onClick={() => handleDelete(record)}
-                    />
+                    <Tooltip title="Detailed view">
+                        <InfoCircleTwoTone
+                            onClick={() => handleDetailView(record)}
+                            style={{ marginRight: '20px' }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Edit product">
+                        <EditOutlined
+                            style={{
+                                marginRight: '20px',
+                                color: '#022B4E',
+                                // color: '#1890ff',
+                                fontSize: '18px',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => {
+                                setAllData(record)
+                                handleEditClick(record.product_id)
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="Delete product">
+                        <HiOutlineTrash
+                            style={{
+                                color: 'red',
+                                fontSize: '18px',
+                                cursor: 'pointer',
+                            }}
+                            onClick={() => handleDelete(record)}
+                        />
+                    </Tooltip>
                 </div>
             ),
         },
@@ -262,34 +320,57 @@ const ListJewellery = () => {
                 />
             ) : (
                 <>
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 style={{ color: '#022B4E' }}>Manage products</h3>
-                        <Button
-                            onClick={() => setIsAddJewelleryOpen(true)}
-                            block
-                            variant="solid"
-                            size="sm"
-                            style={{ width: '150px' }}
-                            //  style={{ backgroundColor: '#022B4E' }}
-                            icon={<HiPlusCircle />}
-                        >
-                            Add Jewellery
-                        </Button>
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 style={{ color: '#022B4E' }}>Manage Products</h3>
+                        <div className="flex items-center">
+                            <Input.Search
+                                placeholder="Search products..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ marginRight: '1rem' }}
+                                size="large"
+                            />
+                            <Button
+                                onClick={() => setIsAddJewelleryOpen(true)}
+                                block
+                                variant="solid"
+                                size="sm"
+                                style={{ width: '150px' }}
+                                icon={<HiPlusCircle />}
+                            >
+                                Add Jewellery
+                            </Button>
+                        </div>
                     </div>
                     {isLoading ? (
-                        <Spin tip="Loading products..." />
-                    ) : products.length > 0 ? (
+                        <Spin
+                            indicator={
+                                <LoadingOutlined
+                                    style={{ fontSize: 24 }}
+                                    spin
+                                />
+                            }
+                        />
+                    ) : filteredProducts.length > 0 ? (
                         <Table
-                            dataSource={products}
+                            dataSource={filteredProducts}
                             columns={columns}
                             rowKey="product_id"
                             size="small"
+                            pagination={{
+                                current: currentPage,
+                                onChange: (page) => setCurrentPage(page),
+                            }}
                         />
+                    ) : products.length === 0 ? (
+                        <Empty description="">No products found!</Empty>
                     ) : (
-                        <p>No products found.</p>
+                        <Empty description="">
+                            Searched product not found!
+                        </Empty>
                     )}
                     <Modal
-                        title="Confirm Deletion"
+                        title={<h4>Confirm Deletion</h4>}
                         open={showConfirmModal}
                         onOk={handleConfirmDelete}
                         onCancel={() => setShowConfirmModal(false)}

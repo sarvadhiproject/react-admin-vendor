@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 import { Tabs } from 'antd'
-import PendingVendors from '../PendingVendors'
-import ActiveVendors from '../ActiveVendors'
-import DeactivatedVendors from '../DeactivatedVendors'
+import PendingOrders from '../PendingOrders'
+import ActiveOrders from '../ActiveOrders'
 
-const VendorManagement = () => {
+const OrderManagement = () => {
     const [activeKey, setActiveKey] = useState('1')
     const handleTabChange = (key) => {
         setActiveKey(key)
@@ -14,23 +13,18 @@ const VendorManagement = () => {
         {
             key: '1',
             label: 'Pending',
-            children: <PendingVendors />,
+            children: <PendingOrders />,
         },
         {
             key: '2',
             label: 'Active',
-            children: <ActiveVendors onDeactivate={() => setActiveKey('3')} />,
-        },
-        {
-            key: '3',
-            label: 'Deactivated',
-            children: <DeactivatedVendors />,
+            children: <ActiveOrders />,
         },
     ]
 
     return (
         <>
-            <h3 style={{ marginBottom: '10px' }}>Manage Vendors</h3>
+            <h3 style={{ color: '#022B4E', marginBottom: '10px' }}>Orders</h3>
             <Tabs
                 activeKey={activeKey}
                 items={tabItems}
@@ -40,4 +34,4 @@ const VendorManagement = () => {
     )
 }
 
-export default VendorManagement
+export default OrderManagement

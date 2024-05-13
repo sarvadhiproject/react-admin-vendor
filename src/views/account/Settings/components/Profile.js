@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     Input,
     Avatar,
@@ -17,12 +17,15 @@ import { components } from 'react-select'
 import {
     HiOutlineUserCircle,
     HiOutlineMail,
+    HiOutlineTrash,
     HiOutlineBriefcase,
     HiOutlineUser,
     HiCheck,
     HiOutlineGlobeAlt,
 } from 'react-icons/hi'
 import * as Yup from 'yup'
+import { Modal, message } from 'antd'
+import axios from 'axios'
 
 const { Control } = components
 
@@ -93,6 +96,30 @@ const Profile = ({ data }) => {
             placement: 'top-center',
         })
         setSubmitting(false)
+    }
+
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const showModal = () => {
+        setIsModalOpen(true)
+    }
+
+    const handleOk = async () => {
+        try {
+            // Make an API call to delete the account
+            await axios.delete('/api/deleteAccount')
+            message.success('Account deleted successfully')
+            // Perform any additional actions after successful deletion
+            setIsModalOpen(false)
+        } catch (error) {
+            message.error('Failed to delete account')
+            console.error('Error deleting account:', error)
+            setIsModalOpen(false)
+        }
+    }
+
+    const handleCancel = () => {
+        setIsModalOpen(false)
     }
 
     return (
@@ -267,21 +294,47 @@ const Profile = ({ data }) => {
                             >
                                 <Field name="syncData" component={Switcher} />
                             </FormRow> */}
-                            <div className="mt-4 ltr:text-right">
+                            <div className="mt-4 flex justify-between">
                                 <Button
-                                    className="ltr:mr-2 rtl:ml-2"
-                                    type="button"
-                                    onClick={resetForm}
+                                    className="mt-2"
+                                    variant="twoTone"
+                                    color="red-600"
+                                    danger
+                                    type="primary"
+                                    icon={<HiOutlineTrash />}
+                                    onClick={showModal}
                                 >
-                                    Reset
+                                    Delete Account
                                 </Button>
-                                <Button
-                                    variant="solid"
-                                    loading={isSubmitting}
-                                    type="submit"
+                                <div>
+                                    <Button
+                                        className="ltr:mr-2 rtl:ml-2"
+                                        type="button"
+                                        onClick={resetForm}
+                                    >
+                                        Reset
+                                    </Button>
+                                    <Button
+                                        variant="solid"
+                                        loading={isSubmitting}
+                                        type="submit"
+                                    >
+                                        {isSubmitting ? 'Updating' : 'Update'}
+                                    </Button>
+                                </div>
+                                <Modal
+                                    title="Delete Account"
+                                    open={isModalOpen}
+                                    onOk={handleOk}
+                                    onCancel={handleCancel}
+                                    okText="Delete"
+                                    cancelText="Cancel"
                                 >
-                                    {isSubmitting ? 'Updating' : 'Update'}
-                                </Button>
+                                    <p>
+                                        Are you sure you want to delete your
+                                        account?
+                                    </p>
+                                </Modal>
                             </div>
                         </FormContainer>
                     </Form>
