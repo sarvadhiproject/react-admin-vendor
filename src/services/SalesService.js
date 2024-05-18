@@ -4,7 +4,8 @@ export async function apiGetSalesProducts(data) {
     return ApiService.fetchData({
         // url: '/sales/products',
         // url: '/view-category-cloudinary',
-        url: '/all-categories',
+        // url: '/all-categories',
+        url: 'categories/get-categories',
         method: 'GET',
         data,
     })
@@ -36,7 +37,8 @@ export async function apiPutSalesProduct(data) {
 
 export async function apiCreateSalesProduct(data) {
     return ApiService.fetchData({
-        url: '/add-category-cloudinary',
+        // url: '/add-category-cloudinary',
+        url: 'categories/add-categories',
         method: 'post',
         data,
     })

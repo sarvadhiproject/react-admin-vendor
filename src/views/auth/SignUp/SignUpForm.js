@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Input, Button, FormItem, FormContainer, Alert } from 'components/ui'
 import { PasswordInput, ActionLink } from 'components/shared'
 import useTimeOutMessage from 'utils/hooks/useTimeOutMessage'
@@ -8,15 +8,19 @@ import useAuth from 'utils/hooks/useAuth'
 import { Modal } from 'antd'
 import Select from 'react-select'
 import './style.css'
+import axios from 'axios'
+import appConfig from 'configs/app.config'
+import { useFormikContext } from 'formik'
 
 const validationSchema = Yup.object().shape({
-    first_name: Yup.string().required('Please enter your first name'),
-    last_name: Yup.string().required('Please enter your last name'),
-    phoneno: Yup.string()
+    first_name: Yup.string().required('First name is required'),
+    last_name: Yup.string().required('Last name is required'),
+    phone_no: Yup.string()
         .matches(/^[6789]\d{9}$/, 'Invalid phone number')
         .required('Phone no. is required'),
-    company_name: Yup.string().required('Please enter your company name'),
-    state: Yup.string().required('Select your state'),
+    company_name: Yup.string().required('Company name is required'),
+    state_id: Yup.string().required('Select state'),
+    city_id: Yup.string().required('Select city'),
     gstno: Yup.string().matches(
         /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
         'Valid GST format (e.g., 06BZAHM6385P6Z2)'
@@ -37,55 +41,63 @@ const validationSchema = Yup.object().shape({
     // ),
 })
 
-const indianStates = [
-    'Andhra Pradesh',
-    'Arunachal Pradesh',
-    'Assam',
-    'Bihar',
-    'Chhattisgarh',
-    'Goa',
-    'Gujarat',
-    'Haryana',
-    'Himachal Pradesh',
-    'Jammu and Kashmir',
-    'Jharkhand',
-    'Karnataka',
-    'Kerala',
-    'Madhya Pradesh',
-    'Maharashtra',
-    'Manipur',
-    'Meghalaya',
-    'Mizoram',
-    'Nagaland',
-    'Odisha',
-    'Punjab',
-    'Rajasthan',
-    'Sikkim',
-    'Tamil Nadu',
-    'Telangana',
-    'Tripura',
-    'Uttar Pradesh',
-    'Uttarakhand',
-    'West Bengal',
-]
-
 const SignUpForm = (props) => {
     const { disableSubmit = false, className, signInUrl = '/sign-in' } = props
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+    const [selectedState, setSelectedState] = useState(null)
+    const [selectedCity, setSelectedCity] = useState(null)
+    const [stateList, setStateList] = useState([])
+    const [cityList, setCityList] = useState([])
 
     const { signUp } = useAuth()
 
     const [message, setMessage] = useTimeOutMessage()
+
+    useEffect(() => {
+        fetchStates()
+    }, [])
+    const fetchStates = async () => {
+        try {
+            const response = await axios.get(
+                `${appConfig.apiPrefix}/location/states`
+            )
+            setStateList(response.data)
+        } catch (error) {
+            console.error('Error fetching states:', error)
+        }
+    }
+
+    const handleStateChange = (selectedOption) => {
+        setSelectedState(selectedOption)
+        setSelectedCity(null)
+        const stateId = selectedOption.state_id
+        fetchCities(stateId)
+    }
+
+    const fetchCities = async (stateId) => {
+        try {
+            const response = await axios.get(
+                `${appConfig.apiPrefix}/location/cities/${stateId}`
+            )
+            console.log(response.data)
+            setCityList(response.data)
+        } catch (error) {
+            console.error('Error fetching cities:', error)
+        }
+    }
+
     const handleCloseDialog = () => {
         setShowSuccessDialog(false)
+        window.location.href = 'http://192.168.2.103:3000/'
     }
     const onSignUp = async (values, setSubmitting) => {
         const {
             first_name,
             last_name,
-            phoneno,
+            phone_no,
             company_name,
-            state,
+            state_id,
+            city_id,
             gstno,
             address,
             // password,
@@ -96,9 +108,10 @@ const SignUpForm = (props) => {
             const result = await signUp({
                 first_name,
                 last_name,
-                phoneno,
+                phone_no,
                 company_name,
-                state,
+                state_id,
+                city_id,
                 gstno,
                 address,
                 // password,
@@ -127,9 +140,10 @@ const SignUpForm = (props) => {
                 initialValues={{
                     first_name: '',
                     last_name: '',
-                    phoneno: '',
+                    phone_no: '',
                     company_name: '',
-                    state: '',
+                    state_id: '',
+                    city_id: '',
                     gstno: '',
                     address: '',
                     email: '',
@@ -184,18 +198,20 @@ const SignUpForm = (props) => {
                             </div>
                             <div className="flex">
                                 <FormItem
-                                    className="w-1/4 mr-4"
+                                    className="w-2/3 mr-4"
                                     label="Phone Number"
-                                    invalid={errors.phoneno && touched.phoneno}
-                                    errorMessage={errors.phoneno}
+                                    invalid={
+                                        errors.phone_no && touched.phone_no
+                                    }
+                                    errorMessage={errors.phone_no}
                                 >
                                     <Input
                                         type="text"
                                         autoComplete="off"
-                                        name="phoneno"
+                                        name="phone_no"
                                         maxLength="10"
                                         placeholder="Phone Number"
-                                        value={values.phoneno}
+                                        value={values.phone_no}
                                         onChange={(e) => {
                                             const re = /^[0-9\b]+$/
                                             if (
@@ -203,13 +219,90 @@ const SignUpForm = (props) => {
                                                 re.test(e.target.value)
                                             ) {
                                                 setFieldValue(
-                                                    'phoneno',
+                                                    'phone_no',
                                                     e.target.value
                                                 )
                                             }
                                         }}
                                     />
                                 </FormItem>
+                                <FormItem
+                                    className="w-2/3 mr-4"
+                                    label="State"
+                                    invalid={
+                                        errors.state_id && touched.state_id
+                                    }
+                                    errorMessage={errors.state_id}
+                                >
+                                    <Field
+                                        as="select"
+                                        name="State"
+                                        className={`select-wrapper ${
+                                            errors.state_id && touched.state_id
+                                                ? 'border-red-500'
+                                                : 'border'
+                                        }`}
+                                        onChange={(e) => {
+                                            setFieldValue(
+                                                'state_id',
+                                                e.target.value
+                                            )
+                                            const selectedState =
+                                                stateList.find(
+                                                    (state) =>
+                                                        state.state_id ===
+                                                        parseInt(e.target.value)
+                                                )
+                                            handleStateChange(selectedState)
+                                        }}
+                                    >
+                                        <Select options={stateList} />
+                                        <option value="">Select State</option>
+                                        {stateList.map((state) => (
+                                            <option
+                                                key={state.state_id}
+                                                value={state.state_id}
+                                            >
+                                                {state.state_name}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                </FormItem>
+                                <FormItem
+                                    className="w-1/6"
+                                    label="City"
+                                    invalid={errors.city_id && touched.city_id}
+                                    errorMessage={errors.city_id}
+                                >
+                                    <Field
+                                        as="select"
+                                        name="City"
+                                        className={`select-wrapper ${
+                                            errors.city_id && touched.city_id
+                                                ? 'border-red-500'
+                                                : 'border'
+                                        }`}
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                'city_id',
+                                                e.target.value
+                                            )
+                                        }
+                                    >
+                                        <Select options={cityList} />
+                                        <option value="">Select City</option>
+                                        {cityList.map((city) => (
+                                            <option
+                                                key={city.city_id}
+                                                value={city.city_id}
+                                            >
+                                                {city.city_name}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                </FormItem>
+                            </div>
+                            <div className="flex">
                                 <FormItem
                                     className="w-1/2 mr-4"
                                     label="Company Name"
@@ -228,53 +321,21 @@ const SignUpForm = (props) => {
                                     />
                                 </FormItem>
                                 <FormItem
-                                    className="w-1/4"
-                                    label="State"
-                                    invalid={errors.state && touched.state}
-                                    errorMessage={errors.state}
+                                    className="w-1/2"
+                                    label="GST Number"
+                                    invalid={errors.gstno && touched.gstno}
+                                    errorMessage={errors.gstno}
                                 >
                                     <Field
-                                        as="select"
-                                        name="State"
-                                        className={`select-wrapper ${
-                                            errors.state && touched.state
-                                                ? 'border-red-500'
-                                                : 'border'
-                                        }`}
-                                        onChange={(e) =>
-                                            setFieldValue(
-                                                'state',
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        <Select options={indianStates} />
-                                        <option value="">Select State</option>
-                                        {indianStates.map((state) => (
-                                            <option key={state} value={state}>
-                                                {state}
-                                            </option>
-                                        ))}
-                                    </Field>
+                                        type="text"
+                                        autoComplete="off"
+                                        name="gstno"
+                                        maxLength="15"
+                                        placeholder="GST No (e.g., 06BZAHM6385P6Z2)"
+                                        component={Input}
+                                    />
                                 </FormItem>
                             </div>
-
-                            <FormItem
-                                className="w-1/2"
-                                label="GST Number"
-                                invalid={errors.gstno && touched.gstno}
-                                errorMessage={errors.gstno}
-                            >
-                                <Field
-                                    type="text"
-                                    autoComplete="off"
-                                    name="gstno"
-                                    maxLength="15"
-                                    placeholder="GST Number (e.g., 06BZAHM6385P6Z2)"
-                                    component={Input}
-                                />
-                            </FormItem>
-
                             <FormItem
                                 className="mt-4"
                                 label="Address"

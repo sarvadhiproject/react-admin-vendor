@@ -15,6 +15,7 @@ import { jwtDecode } from 'jwt-decode'
 import EditJewellery from '../EditJewellery'
 import AddJewellery from '../AddJewellery'
 import NumberFormat from 'react-number-format'
+import axios from 'axios'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -40,31 +41,38 @@ const ListJewellery = () => {
     useEffect(() => {
         setIsLoading(true)
         // Fetch product data
-        fetch(`${appConfig.apiPrefix}/products-by-vendor/${vendorID}`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    setProducts(data)
+        axios
+            .get(`${appConfig.apiPrefix}/products/vendor/${vendorID}`)
+            .then((response) => {
+                if (response.data.data) {
+                    setProducts(response.data.data)
                 } else if (
-                    data.message === 'No products found for this vendor'
+                    response.data.message ===
+                    'No products found for this vendor'
                 ) {
                     setProducts([])
                 } else {
-                    console.error('Unexpected response from the server:', data)
+                    console.error(
+                        'Unexpected response from the server:',
+                        response.data
+                    )
                 }
             })
-            .catch((error) => console.error('Error:', error))
+            .catch((error) => console.error('Error fetching products:', error))
             .finally(() => setIsLoading(false))
 
-        fetch(`${appConfig.apiPrefix}/all-categories`)
-            .then((res) => res.json())
-            .then((data) => {
+        axios
+            .get(`${appConfig.apiPrefix}/categories/get-categories`)
+            .then((response) => {
                 const categoriesMap = {}
-                data.forEach((category) => {
+                response.data.forEach((category) => {
                     categoriesMap[category.category_id] = category.category_name
                 })
                 setCategories(categoriesMap)
             })
+            .catch((error) =>
+                console.error('Error fetching categories:', error)
+            )
     }, [])
 
     const handleDetailView = (product) => {
@@ -72,9 +80,15 @@ const ListJewellery = () => {
         setIsModalOpen(true)
     }
     const fetchProducts = () => {
-        fetch(`${appConfig.apiPrefix}/products-by-vendor/${vendorID}`)
-            .then((res) => res.json())
-            .then((data) => setProducts(data))
+        axios
+            .get(`${appConfig.apiPrefix}/products/vendor/${vendorID}`)
+            .then((response) => {
+                if (Array.isArray(response.data.data)) {
+                    setProducts(response.data.data)
+                } else {
+                    console.error('Invalid response format:', response.data)
+                }
+            })
             .catch((error) => console.error('Error:', error))
     }
 
@@ -84,14 +98,12 @@ const ListJewellery = () => {
     }
     const handleConfirmDelete = () => {
         setIsDeleting(true)
-        fetch(
-            `${appConfig.apiPrefix}/delete-product/${vendorID}/${productToDelete}`,
-            {
-                method: 'DELETE',
-            }
-        )
-            .then((res) => {
-                if (res.ok) {
+        axios
+            .delete(
+                `${appConfig.apiPrefix}/products/deactivate/${productToDelete}`
+            )
+            .then((response) => {
+                if (response.status === 200) {
                     setIsDeleting(false)
                     setShowConfirmModal(false)
                     fetchProducts()
@@ -388,7 +400,11 @@ const ListJewellery = () => {
                             style: { borderColor: '#1890ff' },
                         }}
                     >
-                        <p>Are you sure you want to delete this product?</p>
+                        <p>
+                            Are you sure you want to delete this product?
+                            Customers will not be able to purchase or view this
+                            product on our website.
+                        </p>
                     </Modal>
                     <Modal
                         title={
@@ -484,6 +500,12 @@ const ListJewellery = () => {
                                             Size :{' '}
                                         </span>
                                         {selectedProduct.size}
+                                    </p>
+                                    <p>
+                                        <span style={{ fontWeight: '600' }}>
+                                            Weight :{' '}
+                                        </span>
+                                        {selectedProduct.weight}
                                     </p>
                                     <p>
                                         <span style={{ fontWeight: '600' }}>

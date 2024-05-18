@@ -18,6 +18,7 @@ import {
     RightOutlined,
 } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
+import axios from 'axios'
 import { HiOutlineTrash } from 'react-icons/hi'
 import { Spin } from 'antd'
 import { Notification, toast } from 'components/ui'
@@ -46,29 +47,53 @@ const ProductList = () => {
     const [pageSize, setPageSize] = useState(10)
 
     useEffect(() => {
-        fetch(`${appConfig.apiPrefix}/view-products-cloudinary`)
-            .then((res) => res.json())
-            .then((data) => setProducts(data))
+        axios
+            .get(`${appConfig.apiPrefix}/products`)
+            .then((response) => {
+                if (response.data.data) {
+                    setProducts(response.data.data)
+                } else {
+                    console.error('Invalid response format:', response.data)
+                }
+            })
+            .catch((error) => console.error('Error fetching products:', error))
 
-        fetch(`${appConfig.apiPrefix}/all-categories`)
-            .then((res) => res.json())
-            .then((data) => {
+        axios
+            .get(`${appConfig.apiPrefix}/categories/get-categories`)
+            .then((response) => {
                 const categoriesMap = {}
-                data.forEach((category) => {
+                response.data.forEach((category) => {
                     categoriesMap[category.category_id] = category.category_name
                 })
                 setCategories(categoriesMap)
             })
+            .catch((error) =>
+                console.error('Error fetching categories:', error)
+            )
 
-        fetch(`${appConfig.apiPrefix}/view-users`)
-            .then((res) => res.json())
-            .then((data) => {
-                const vendorsMap = {}
-                data.forEach((vendor) => {
-                    vendorsMap[vendor.id] =
-                        vendor.first_name + ' ' + vendor.last_name
-                })
-                setVendors(vendorsMap)
+        axios
+            .get(`${appConfig.apiPrefix}/vendor/active`)
+            .then((response) => {
+                if (
+                    response.data.success &&
+                    Array.isArray(response.data.activeVendors)
+                ) {
+                    const vendorsMap = {}
+                    response.data.activeVendors.forEach((vendor) => {
+                        vendorsMap[
+                            vendor.vendor_id
+                        ] = `${vendor.first_name} ${vendor.last_name}`
+                    })
+                    setVendors(vendorsMap)
+                } else {
+                    console.error(
+                        'Error fetching active vendors:',
+                        response.data
+                    )
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching active vendors:', error)
             })
     }, [])
 
@@ -77,12 +102,22 @@ const ProductList = () => {
         setIsModalOpen(true)
     }
     const fetchProducts = () => {
-        fetch(`${appConfig.apiPrefix}/view-products-cloudinary`)
-            .then((res) => res.json())
-            .then((data) => setProducts(data))
+        axios
+            .get(`${appConfig.apiPrefix}/products`)
+            .then((response) => {
+                if (Array.isArray(response.data.data)) {
+                    setProducts(response.data.data)
+                } else {
+                    console.error('Invalid response format:', response.data)
+                }
+            })
             .catch((error) => console.error('Error:', error))
     }
     const filteredProducts = useMemo(() => {
+        if (!Array.isArray(products)) {
+            return []
+        }
+
         const lowercaseQuery = searchQuery.toLowerCase()
         return products.filter(
             (product) =>
@@ -103,28 +138,29 @@ const ProductList = () => {
 
     const handleConfirmDelete = () => {
         setIsDeleting(true)
-        fetch(`${appConfig.apiPrefix}/delete-product/${productToDelete}`, {
-            method: 'DELETE',
-        })
-            .then((res) => {
-                if (res.ok) {
+        axios
+            .delete(
+                `${appConfig.apiPrefix}/products/deactivate/${productToDelete}`
+            )
+            .then((response) => {
+                if (response.status === 200) {
                     setIsDeleting(false)
                     setShowConfirmModal(false)
                     fetchProducts()
                     toast.push(
                         <Notification
-                            title={'Successfully deleted'}
+                            title={'Successfully deactivated'}
                             type="success"
                             duration={2500}
                         >
-                            Product deleted successfully
+                            Product deactivated successfully
                         </Notification>,
                         {
                             placement: 'top-center',
                         }
                     )
                 } else {
-                    throw new Error('Failed to delete product')
+                    throw new Error('Failed to deactivate product')
                 }
             })
             .catch((error) => {
@@ -132,7 +168,7 @@ const ProductList = () => {
                 setShowConfirmModal(false)
                 toast.push(
                     <Notification
-                        title={'Unable to delete product'}
+                        title={'Unable to deactivate product'}
                         type="danger"
                         duration={2500}
                     >
@@ -480,6 +516,12 @@ const ProductList = () => {
                                     Size :{' '}
                                 </span>
                                 {selectedProduct.size}
+                            </p>
+                            <p>
+                                <span style={{ fontWeight: '600' }}>
+                                    Weight :{' '}
+                                </span>
+                                {selectedProduct.weight}
                             </p>
                             <p>
                                 <span style={{ fontWeight: '600' }}>

@@ -34,6 +34,12 @@ if (role == 1) {
             dashboard
         </span>
     )
+} else {
+    user = (
+        <span style={{ fontWeight: '400', fontFamily: 'sans-serif' }}>
+            dashboard
+        </span>
+    )
 }
 // console.log(user)
 

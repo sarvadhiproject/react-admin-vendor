@@ -268,7 +268,7 @@ const InDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
     }
 
     //category IDs for "Necklace", "Chain", and "Bracelet"
-    const necklaceChainBraceletCategoryIds = [60, 62, 63]
+    const necklaceChainBraceletCategoryIds = [3, 5, 8]
 
     const initialOccasionType = Array.isArray(formData.occasion_type)
         ? formData.occasion_type
@@ -393,7 +393,7 @@ const InDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
                     </Form.Item>
                 </Col> */}
                 <Col span={12}>
-                    {category_id === 58 && (
+                    {category_id === 1 && (
                         <Form.Item
                             name="size"
                             label="Ring Size"
@@ -411,7 +411,7 @@ const InDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
                                 <Option value="10">10</Option>
                                 <Option value="11">11</Option>
                                 <Option value="12">12</Option>
-                                <Option value="13">12</Option>
+                                <Option value="13">13</Option>
                                 <Option value="14">14</Option>
                                 <Option value="15">15</Option>
                                 <Option value="16">16</Option>
@@ -432,7 +432,7 @@ const InDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
                             </Select>
                         </Form.Item>
                     )}
-                    {category_id === 64 && (
+                    {category_id === 9 && (
                         <Form.Item
                             name="size"
                             label="Bangle Size"
@@ -470,7 +470,7 @@ const InDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
                             </Select>
                         </Form.Item>
                     )}
-                    {category_id !== 58 && category_id !== 64 && (
+                    {category_id !== 1 && category_id !== 9 && (
                         <Form.Item
                             name="size"
                             label="Size"

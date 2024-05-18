@@ -6,8 +6,13 @@ import DeactivatedVendors from '../DeactivatedVendors'
 
 const VendorManagement = () => {
     const [activeKey, setActiveKey] = useState('1')
+    const [refreshDeactivated, setRefreshDeactivated] = useState(false)
+
     const handleTabChange = (key) => {
         setActiveKey(key)
+    }
+    const handleDeactivate = () => {
+        setRefreshDeactivated(!refreshDeactivated)
     }
 
     const tabItems = [
@@ -19,12 +24,14 @@ const VendorManagement = () => {
         {
             key: '2',
             label: 'Active',
-            children: <ActiveVendors onDeactivate={() => setActiveKey('3')} />,
+            children: <ActiveVendors onDeactivate={handleDeactivate} />,
         },
         {
             key: '3',
             label: 'Deactivated',
-            children: <DeactivatedVendors />,
+            children: (
+                <DeactivatedVendors refreshDeactivated={refreshDeactivated} />
+            ),
         },
     ]
 

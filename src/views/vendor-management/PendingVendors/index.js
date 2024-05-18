@@ -16,7 +16,7 @@ const PendingVendors = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `${appConfig.apiPrefix}/pending-vendors`
+                `${appConfig.apiPrefix}/vendor/pending`
             )
             setData(response.data.pendingVendors)
         } catch (error) {
@@ -40,7 +40,7 @@ const PendingVendors = () => {
                 vendor.email
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
-                vendor.phoneno
+                vendor.phone_no
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
                 vendor.company_name
@@ -51,21 +51,21 @@ const PendingVendors = () => {
     }, [data, searchQuery])
 
     const handleApprove = async (record) => {
-        setLoadingMap((prevState) => ({ ...prevState, [record.id]: true }))
+        setLoadingMap((prevState) => ({ ...prevState, [record.vendor_id]: true }))
         try {
             const response = await axios.put(
-                `${appConfig.apiPrefix}/activate-vendor/${record.id}`
+                `${appConfig.apiPrefix}/vendor/activate/${record.vendor_id}`
             )
             if (response.data.success) {
                 message.success('Vendor account activated successfully')
                 fetchData()
             } else {
-                message.error('Failed to approve vendor')
+                message.error('Failed to activate vendor account')
             }
         } catch (error) {
-            message.error('Failed to activate vendor account : ', error)
+            message.error('Failed to activate vendor account ', error)
         } finally {
-            setLoadingMap((prevState) => ({ ...prevState, [record.id]: false }))
+            setLoadingMap((prevState) => ({ ...prevState, [record.vendor_id]: false }))
         }
     }
     const indexStart = useMemo(() => {
@@ -100,7 +100,7 @@ const PendingVendors = () => {
         },
         {
             title: 'Phone No',
-            dataIndex: 'phoneno',
+            dataIndex: 'phone_no',
             render: (text) => <span style={{ color: '#666' }}>{text}</span>,
         },
         {
@@ -133,7 +133,7 @@ const PendingVendors = () => {
             render: (_, record) => (
                 <Button
                     type="primary"
-                    loading={loadingMap[record.id]}
+                    loading={loadingMap[record.vendor_id]}
                     onClick={() => handleApprove(record)}
                     // size="small"
                     style={{

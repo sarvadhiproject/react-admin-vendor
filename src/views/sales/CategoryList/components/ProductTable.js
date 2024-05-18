@@ -3,6 +3,8 @@ import { Avatar, Badge, Button, Notification, toast } from 'components/ui'
 import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts } from '../store/dataSlice'
+import axios from 'axios'
+
 import {
     Table,
     Space,
@@ -86,24 +88,20 @@ const ProductTable = () => {
 
     const handleEditSubmit = async (values) => {
         try {
-            //
             const formData = new FormData()
             formData.append('category_name', values.category_name)
             formData.append(
                 'category_image',
                 values.category_image[0]?.originFileObj
             )
-            //
-            const response = await fetch(
-                `${appConfig.apiPrefix}/update-category/${editingCategory.category_id}`,
-                {
-                    method: 'PUT',
-                    body: formData,
-                }
+            const response = await axios.put(
+                `${appConfig.apiPrefix}/categories/update-category/${editingCategory.category_id}`,
+                formData
             )
-            if (!response.ok) {
+            if (response.status !== 200) {
                 throw new Error('Failed to update category')
             }
+
             toast.push(
                 <Notification
                     title={'Successfully updated'}
@@ -116,7 +114,6 @@ const ProductTable = () => {
                     placement: 'top-center',
                 }
             )
-            setShowEditModal(false)
             fetchData()
         } catch (error) {
             toast.push(
@@ -131,6 +128,8 @@ const ProductTable = () => {
                     placement: 'top-center',
                 }
             )
+        } finally {
+            setShowEditModal(false)
         }
     }
     const indexStart = useMemo(() => {
@@ -218,13 +217,11 @@ const ProductTable = () => {
 
     const handleDeleteConfirmation = async () => {
         try {
-            const response = await fetch(
-                `${appConfig.apiPrefix}/delete-category/${deleteCategoryId}`,
-                {
-                    method: 'DELETE',
-                }
+            const response = await axios.delete(
+                `${appConfig.apiPrefix}/categories/delete-category/${deleteCategoryId}`
             )
-            if (!response.ok) {
+
+            if (response.status !== 200) {
                 throw new Error('Failed to delete category')
             }
             toast.push(
@@ -239,7 +236,6 @@ const ProductTable = () => {
                     placement: 'top-center',
                 }
             )
-            setShowConfirmation(false)
             fetchData()
         } catch (error) {
             toast.push(
@@ -254,6 +250,8 @@ const ProductTable = () => {
                     placement: 'top-center',
                 }
             )
+        } finally {
+            setShowConfirmation(false)
         }
     }
 

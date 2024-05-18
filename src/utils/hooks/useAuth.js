@@ -1,14 +1,20 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { setUser, initialState } from 'store/auth/userSlice'
-import { apiSignIn, apiSignOut, apiSignUp } from 'services/AuthService'
+import {
+    apiSignIn,
+    apiSignInAdmin,
+    apiSignOut,
+    apiSignUp,
+} from 'services/AuthService'
 import { onSignInSuccess, onSignOutSuccess } from 'store/auth/sessionSlice'
 import appConfig from 'configs/app.config'
 import { REDIRECT_URL_KEY } from 'constants/app.constant'
 import { useNavigate } from 'react-router-dom'
 import useQuery from './useQuery'
 import { ADMIN } from 'constants/roles.constant'
+import { jwtDecode } from 'jwt-decode'
 
-function useAuth({ AdminLogin } = {}) {
+function useAuth() {
     const dispatch = useDispatch()
 
     const navigate = useNavigate()
@@ -18,27 +24,68 @@ function useAuth({ AdminLogin } = {}) {
 
     const signIn = async (values) => {
         try {
-            let resp
+            const resp = await apiSignIn(values)
 
-            if (AdminLogin) {
-                // If AdminLogin prop is provided, use that API
-                resp = await apiSignIn(AdminLogin, values)
-            } else {
-                // Else, use the default API
-                resp = await apiSignIn(values)
-            }
             if (resp.data) {
-                console.log(resp)
+                // console.log(resp)
                 const { token } = resp.data
+
+                const decodedToken = jwtDecode(token)
+                // console.log(decodedToken);
+                const userName = decodedToken.first_name
+                const email = decodedToken.email
+                const authority = decodedToken.authority
                 dispatch(onSignInSuccess(token))
+
                 if (resp.data) {
                     dispatch(
                         setUser({
                             avatar: '',
-                            userName: resp.data.first_name,
-                            // email: resp.data.email,
-                            email: values.email,
-                            authority: [resp.data.role],
+                            userName,
+                            email,
+                            authority,
+                        })
+                    )
+                }
+
+                const redirectUrl = query.get(REDIRECT_URL_KEY)
+                navigate(
+                    redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
+                )
+                return {
+                    status: 'success',
+                    message: '',
+                }
+            }
+        } catch (errors) {
+            return {
+                status: 'failed',
+                message: errors?.response?.data?.message || errors.toString(),
+            }
+        }
+    }
+    const signInAdmin = async (values) => {
+        try {
+            const resp = await apiSignInAdmin(values)
+
+            if (resp.data) {
+                // console.log(resp)
+                const { token } = resp.data
+
+                const decodedToken = jwtDecode(token)
+                // console.log(decodedToken);
+                const userName = decodedToken.first_name
+                const email = decodedToken.email
+                const authority = decodedToken.authority
+                dispatch(onSignInSuccess(token))
+
+                if (resp.data) {
+                    dispatch(
+                        setUser({
+                            avatar: '',
+                            userName,
+                            email,
+                            authority,
                         })
                     )
                 }
@@ -60,41 +107,90 @@ function useAuth({ AdminLogin } = {}) {
         }
     }
 
+    // const signUp = async (values) => {
+    //     const resp = await apiSignUp(values)
+    //     try {
+    //         if (resp.data) {
+    //             const { token } = resp.data
+    //             dispatch(onSignInSuccess(token))
+    //             // if (resp.data.user) {
+    //             //     dispatch(
+    //             //         setUser(
+    //             //             resp.data.user || {
+    //             //                 avatar: '',
+    //             //                 userName: 'Anonymous',
+    //             //                 authority: ['USER'],
+    //             //                 email: '',
+    //             //             }
+    //             //         )
+    //             //     )
+    //             // }
+    //             if (resp.data) {
+    //                 dispatch(setUser({}))
+    //             }
+    //             const redirectUrl = query.get(REDIRECT_URL_KEY)
+    //             // navigate(
+    //             //     redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
+    //             // )
+    //             return {
+    //                 status: 'success',
+    //                 message: '',
+    //             }
+    //         }
+    //     } catch (errors) {
+    //         if (
+    //             errors.response &&
+    //             errors.response.data &&
+    //             errors.response.data.message
+    //         ) {
+    //             // Handle the case where the server returns a JSON response with a message
+    //             return {
+    //                 status: 'failed',
+    //                 message: errors.response.data.message,
+    //             }
+    //         } else {
+    //             // Handle other error cases
+    //             return {
+    //                 status: 'failed',
+    //                 message: errors.response.data.message,
+    //             }
+    //         }
+    //     }
+    // }
     const signUp = async (values) => {
-        const resp = await apiSignUp(values)
         try {
-            if (resp.data) {
+            const resp = await apiSignUp(values)
+
+            if (resp.status === 200 && resp.data) {
                 const { token } = resp.data
                 dispatch(onSignInSuccess(token))
-                // if (resp.data.user) {
-                //     dispatch(
-                //         setUser(
-                //             resp.data.user || {
-                //                 avatar: '',
-                //                 userName: 'Anonymous',
-                //                 authority: ['USER'],
-                //                 email: '',
-                //             }
-                //         )
-                //     )
-                // }
-                if (resp.data) {
-                    dispatch(setUser({}))
-                }
-                const redirectUrl = query.get(REDIRECT_URL_KEY)
-                // navigate(
-                //     redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
-                // )
+                dispatch(setUser({}))
+
                 return {
                     status: 'success',
                     message: '',
                 }
+            } else {
+                // Handle other status codes
+                return {
+                    status: 'failed',
+                    message: 'Request failed with status code: ' + resp.status,
+                }
             }
         } catch (errors) {
-            return {
-                status: 'failed',
-                // message: errors?.response?.data?.message || errors.toString(),
-                message: resp.data.message,
+            if (
+                errors.response &&
+                errors.response.data &&
+                errors.response.data.message
+            ) {
+                // Handle the case where the server returns a JSON response with a message
+                return {
+                    status: 'failed',
+                    message: errors.response.data.message,
+                }
+            } else {
+                // Handle other error cases
+                return { status: 'failed', message: errors.toString() }
             }
         }
     }
@@ -113,6 +209,7 @@ function useAuth({ AdminLogin } = {}) {
     return {
         authenticated: token && signedIn,
         signIn,
+        signInAdmin,
         signUp,
         signOut,
     }

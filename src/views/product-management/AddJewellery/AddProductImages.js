@@ -4,6 +4,7 @@ import { UploadOutlined, LoadingOutlined } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
 import { useForm } from 'antd/lib/form/Form'
 import { Notification, toast } from 'components/ui'
+import axios from 'axios'
 
 const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
     const [fileList, setFileList] = useState([])
@@ -35,8 +36,8 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
     const handleSubmit = async () => {
         try {
             setLoading(true)
-            if (fileList.length === 0) {
-                message.error('Please upload at least one image')
+            if (fileList.length < 3) {
+                message.error('Please upload at least three images')
                 setLoading(false)
                 return
             }
@@ -52,16 +53,12 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                 formDataToSend.append('p_images', fileObject)
             })
 
-            const response = await fetch(
-                `${appConfig.apiPrefix}/add-product-cloudinary`,
-                {
-                    method: 'POST',
-                    body: formDataToSend,
-                }
+            const response = await axios.post(
+                `${appConfig.apiPrefix}/products/add`,
+                formDataToSend
             )
 
-            if (response.ok) {
-                // message.success('Product added successfully')
+            if (response.status === 200) {
                 toast.push(
                     <Notification
                         title={'Successfully added'}
@@ -76,7 +73,6 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                 )
                 onSubmit()
             } else {
-                const data = await response.json()
                 // message.error(data.error || 'Failed to add product')
                 toast.push(
                     <Notification
@@ -84,7 +80,7 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                         type="danger"
                         duration={2500}
                     >
-                        {data.error}
+                        {response.data.error}
                     </Notification>,
                     {
                         placement: 'top-center',
@@ -93,14 +89,13 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
             }
             setLoading(false)
         } catch (error) {
-            // message.error('Failed to add product:', error)
             toast.push(
                 <Notification
                     title={'Failed to add product'}
                     type="danger"
                     duration={2500}
                 >
-                    {error}
+                    {error.message}
                 </Notification>,
                 {
                     placement: 'top-center',

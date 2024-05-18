@@ -13,7 +13,7 @@ const Side = ({ children, content, ...rest }) => {
                     // backgroundColor: 'transparent',
                 }}
             >
-                <Logo mode="dark" />
+                {/* <Logo mode="dark" /> */}
                 {/* <div>
                     <div className="mb-6 flex items-center gap-4">
                         <Avatar

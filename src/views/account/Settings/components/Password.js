@@ -10,7 +10,8 @@ import {
 } from 'components/ui'
 import FormDesription from './FormDesription'
 import FormRow from './FormRow'
-import { Field, Form, Formik } from 'formik'
+import { Field, Form, Formik, resetForm } from 'formik'
+
 import isLastChild from 'utils/isLastChild'
 import {
     HiOutlineDesktopComputer,
@@ -40,7 +41,7 @@ const decodedToken = jwtDecode(token)
 var vendorID = decodedToken.id
 
 const validationSchema = Yup.object().shape({
-    currentPassword: Yup.string().required('Current password Required'),
+    oldPassword: Yup.string().required('Current password Required'),
     newPassword: Yup.string()
         .required('Enter your new password')
         .min(8, 'Too Short!')
@@ -55,40 +56,65 @@ const validationSchema = Yup.object().shape({
 })
 
 const Password = ({ data }) => {
-    const onFormSubmit = (values, setSubmitting) => {
+    const onFormSubmit = (values, setSubmitting, resetForm) => {
         toast.push(<Notification title={'Password updated'} type="success" />, {
             placement: 'top-center',
         })
         setSubmitting(false)
+        resetForm()
     }
-    const handleChangePassword = async (values, setSubmitting) => {
-        try {
-            const { currentPassword, newPassword } = values
-
-            // Make the API request to change the password
-            const response = await axios.post(
-                `${appConfig.apiPrefix}/change-password/${vendorID}`,
+    const handleChangePassword = async (values, setSubmitting, resetForm) => {
+        const { oldPassword, newPassword } = values
+        if (oldPassword === newPassword) {
+            toast.push(
+                <Notification
+                    title={'Current and new passwords cannot be the same'}
+                    type="danger"
+                />,
                 {
-                    currentPassword,
+                    placement: 'top-center',
+                }
+            )
+            setSubmitting(false)
+            return
+        }
+        try {
+            // Make the API request to change the password
+            const response = await axios.put(
+                `${appConfig.apiPrefix}/vendor/update-password/${vendorID}`,
+                {
+                    oldPassword,
                     newPassword,
                 }
             )
 
             // Handle the successful response
             if (response.data.success) {
-                onFormSubmit(values, setSubmitting)
+                onFormSubmit(values, setSubmitting, resetForm)
             } else {
                 // Handle the error response
-                console.error(response.data.error)
-                toast.push(
-                    <Notification
-                        title={'Error changing password'}
-                        type="danger"
-                    />,
-                    {
-                        placement: 'top-center',
-                    }
-                )
+                const errorMessage = response.data.data.error
+                if (errorMessage === 'Invalid old password') {
+                    toast.push(
+                        <Notification
+                            title={'Invalid old password'}
+                            type="danger"
+                        />,
+                        {
+                            placement: 'top-center',
+                        }
+                    )
+                } else {
+                    toast.push(
+                        <Notification
+                            title={'Error changing password ' + errorMessage}
+                            type="danger"
+                        />,
+                        {
+                            placement: 'top-center',
+                        }
+                    )
+                }
                 setSubmitting(false)
             }
         } catch (error) {
@@ -96,7 +122,7 @@ const Password = ({ data }) => {
             console.error('Error changing password:', error)
             toast.push(
                 <Notification
-                    title={'Error changing password'}
+                    title={error.response.data.error}
                     type="danger"
                 />,
                 {
@@ -110,17 +136,17 @@ const Password = ({ data }) => {
         <>
             <Formik
                 initialValues={{
-                    password: '',
+                    oldPassword: '',
                     newPassword: '',
                     confirmNewPassword: '',
                 }}
                 validationSchema={validationSchema}
-                onSubmit={(values, { setSubmitting }) => {
+                onSubmit={(values, { setSubmitting, resetForm }) => {
                     setSubmitting(true)
                     // setTimeout(() => {
                     //     onFormSubmit(values, setSubmitting)
                     // }, 1000)
-                    handleChangePassword(values, setSubmitting)
+                    handleChangePassword(values, setSubmitting, resetForm)
                 }}
             >
                 {({ values, touched, errors, isSubmitting, resetForm }) => {
@@ -140,7 +166,7 @@ const Password = ({ data }) => {
                                     <Field
                                         type="password"
                                         autoComplete="off"
-                                        name="currentPassword"
+                                        name="oldPassword"
                                         placeholder="Current Password"
                                         component={Input}
                                     />

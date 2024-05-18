@@ -3,6 +3,7 @@ import { Form, Upload, Button, message, Spin } from 'antd'
 import { UploadOutlined, LoadingOutlined } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
 import { Notification, toast } from 'components/ui'
+import axios from 'axios'
 
 const EditProductImages = ({
     onPrev,
@@ -21,17 +22,25 @@ const EditProductImages = ({
 
     const fetchExistingImages = async (productId) => {
         try {
-            const response = await fetch(
-                `${appConfig.apiPrefix}/product-details/${productId}`
+            const response = await axios.get(
+                `${appConfig.apiPrefix}/products/details/${productId}`
             )
-            const data = await response.json()
-            const existingImages = data.p_images.map((image) => ({
-                uid: image,
-                name: image,
-                status: 'done',
-                url: `${appConfig.imgPrefix}/${image}`,
-            }))
-            setFileList(existingImages)
+
+            if (
+                response.data.message === 'Product details fetched successfully'
+            ) {
+                const existingImages = response.data.data.imageURLs.map(
+                    (imageURL) => ({
+                        uid: imageURL,
+                        name: imageURL.split('/').pop(),
+                        status: 'done',
+                        url: imageURL,
+                    })
+                )
+                setFileList(existingImages)
+            } else {
+                console.error('Error fetching product details:', response.data)
+            }
         } catch (error) {
             console.error('Error fetching existing images:', error)
         }
@@ -101,15 +110,12 @@ const EditProductImages = ({
                 JSON.stringify(existingImageNames)
             ) // Send existing image names to backend
 
-            const response = await fetch(
-                `${appConfig.apiPrefix}/update-product/${productId}`,
-                {
-                    method: 'PUT',
-                    body: formDataToSend,
-                }
+            const response = await axios.put(
+                `${appConfig.apiPrefix}/products/update/${productId}`,
+                formDataToSend
             )
 
-            if (response.ok) {
+            if (response.status === 200) {
                 // message.success('Product updated successfully')
                 toast.push(
                     <Notification
@@ -125,7 +131,7 @@ const EditProductImages = ({
                 )
                 onSubmit()
             } else {
-                const data = await response.json()
+                const data = response.data
                 // message.error(data.error || 'Failed to update product')
                 toast.push(
                     <Notification

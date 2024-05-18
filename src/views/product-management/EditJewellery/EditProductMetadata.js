@@ -178,7 +178,7 @@ const EditProductMetadata = ({ onNext, formData, setFormData }) => {
     const fetchCategories = async () => {
         try {
             const response = await fetch(
-                `${appConfig.apiPrefix}/all-categories`
+                `${appConfig.apiPrefix}/categories/get-categories`
             )
             const data = await response.json()
             setCategories(data)

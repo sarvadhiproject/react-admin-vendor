@@ -5,7 +5,7 @@ import appConfig from 'configs/app.config'
 
 const { TextArea } = Input
 
-const ActiveVendors = () => {
+const ActiveVendors = ({ onDeactivate }) => {
     const [data, setData] = useState([])
     const [visible, setVisible] = useState(false)
     const [selectedVendor, setSelectedVendor] = useState(null)
@@ -20,7 +20,7 @@ const ActiveVendors = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `${appConfig.apiPrefix}/active-vendors`
+                `${appConfig.apiPrefix}/vendor/active`
             )
             setData(response.data.activeVendors)
         } catch (error) {
@@ -41,18 +41,20 @@ const ActiveVendors = () => {
     const handleDeactivateConfirm = async () => {
         try {
             const response = await axios.put(
-                `${appConfig.apiPrefix}/deactivate-vendor/${selectedVendor.id}`
+                `${appConfig.apiPrefix}/vendor/deactivate/${selectedVendor.vendor_id}`
             )
             if (response.data.success) {
                 message.success('Vendor account deactivated successfully')
-                setVisible(false)
                 setDeactivateReason('')
                 fetchData()
+                onDeactivate()
             } else {
                 message.error('Failed to deactivate vendor')
             }
         } catch (error) {
-            message.error('Failed to deactivate vendor account:', error)
+            message.error('Failed to deactivate vendor account', error)
+        } finally {
+            setVisible(false)
         }
     }
 
@@ -72,7 +74,7 @@ const ActiveVendors = () => {
                 vendor.email
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
-                vendor.phoneno
+                vendor.phone_no
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
                 vendor.company_name
@@ -114,7 +116,7 @@ const ActiveVendors = () => {
         },
         {
             title: 'Phone No',
-            dataIndex: 'phoneno',
+            dataIndex: 'phone_no',
             render: (text) => <span style={{ color: '#666' }}>{text}</span>,
         },
         {
@@ -216,7 +218,11 @@ const ActiveVendors = () => {
                     style: { background: '#ff4d4f', borderColor: '#ff4d4f' },
                 }}
             >
-                <p>Are you sure you want to deactivate this vendor account?</p>
+                <p>
+                    Are you sure you want to deactivate this vendor account?
+                    Deactivating this account will also deactivate all
+                    associated products, making them invisible to customers.
+                </p>
                 {/* <TextArea
                     placeholder="Reason for deactivate vendor"
                     rows={4}

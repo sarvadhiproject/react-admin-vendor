@@ -3,19 +3,19 @@ import { Table, Button, Input, Empty } from 'antd'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
 
-const DeactivatedVendors = () => {
+const DeactivatedVendors = ({ refreshDeactivated }) => {
     const [data, setData] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
 
     useEffect(() => {
         fetchData()
-    }, [])
+    }, [refreshDeactivated])
 
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `${appConfig.apiPrefix}/deactive-vendors`
+                `${appConfig.apiPrefix}/vendor/deactive`
             )
             setData(response.data.deactiveVendors)
         } catch (error) {
@@ -39,7 +39,7 @@ const DeactivatedVendors = () => {
                 vendor.email
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
-                vendor.phoneno
+                vendor.phone_no
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase()) ||
                 vendor.company_name
@@ -81,7 +81,7 @@ const DeactivatedVendors = () => {
         },
         {
             title: 'Phone No',
-            dataIndex: 'phoneno',
+            dataIndex: 'phone_no',
             render: (text) => <span style={{ color: '#666' }}>{text}</span>,
         },
         {
