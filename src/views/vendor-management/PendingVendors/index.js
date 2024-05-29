@@ -1,13 +1,36 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Table, Button, message, Input, Empty } from 'antd'
+import {
+    Table,
+    Button,
+    message,
+    Input,
+    Empty,
+    Modal,
+    Spin,
+    Typography,
+} from 'antd'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
+import {
+    UserOutlined,
+    MailOutlined,
+    PhoneOutlined,
+    BankOutlined,
+    FileTextOutlined,
+    IdcardOutlined,
+    FileProtectOutlined,
+    HomeOutlined,
+} from '@ant-design/icons'
+const { Paragraph } = Typography
 
 const PendingVendors = () => {
     const [data, setData] = useState([])
     const [loadingMap, setLoadingMap] = useState({})
     const [currentPage, setCurrentPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
+    const [kycDetails, setKycDetails] = useState(null)
+    const [isKycModalVisible, setIsKycModalVisible] = useState(false)
+    const [isKycLoading, setIsKycLoading] = useState(false)
 
     useEffect(() => {
         fetchData()
@@ -26,6 +49,21 @@ const PendingVendors = () => {
 
     const handleSearch = (e) => {
         setSearchQuery(e.target.value)
+    }
+    const fetchKycDetails = async (vendorId) => {
+        setIsKycLoading(true)
+        try {
+            const response = await axios.get(
+                `${appConfig.apiPrefix}/vendor/getKYCDetails/${vendorId}`
+            )
+            setKycDetails(response.data)
+            setIsKycModalVisible(true)
+        } catch (error) {
+            message.error('Failed to fetch KYC details')
+            console.error('Error fetching KYC details:', error)
+        } finally {
+            setIsKycLoading(false)
+        }
     }
 
     const filteredVendors = useMemo(() => {
@@ -51,7 +89,10 @@ const PendingVendors = () => {
     }, [data, searchQuery])
 
     const handleApprove = async (record) => {
-        setLoadingMap((prevState) => ({ ...prevState, [record.vendor_id]: true }))
+        setLoadingMap((prevState) => ({
+            ...prevState,
+            [record.vendor_id]: true,
+        }))
         try {
             const response = await axios.put(
                 `${appConfig.apiPrefix}/vendor/activate/${record.vendor_id}`
@@ -65,7 +106,10 @@ const PendingVendors = () => {
         } catch (error) {
             message.error('Failed to activate vendor account ', error)
         } finally {
-            setLoadingMap((prevState) => ({ ...prevState, [record.vendor_id]: false }))
+            setLoadingMap((prevState) => ({
+                ...prevState,
+                [record.vendor_id]: false,
+            }))
         }
     }
     const indexStart = useMemo(() => {
@@ -131,24 +175,37 @@ const PendingVendors = () => {
             title: 'Action',
             dataIndex: 'action',
             render: (_, record) => (
-                <Button
-                    type="primary"
-                    loading={loadingMap[record.vendor_id]}
-                    onClick={() => handleApprove(record)}
-                    // size="small"
-                    style={{
-                        background: '#1890ff',
-                        borderColor: '#1890ff',
-                        borderRadius: '4px',
-                        transition: 'background-color 0.3s',
-                        '&:hover': {
-                            background: '#40a9ff',
-                            borderColor: '#40a9ff',
-                        },
-                    }}
-                >
-                    Activate
-                </Button>
+                <>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Button
+                            type="default"
+                            onClick={() => fetchKycDetails(record.vendor_id)}
+                            style={{
+                                background: '#ffa500',
+                                borderColor: '#ffa500',
+                                color: '#fff',
+                                borderRadius: '4px',
+                                transition: 'background-color 0.3s',
+                            }}
+                        >
+                            View KYC
+                        </Button>
+                        <Button
+                            type="primary"
+                            loading={loadingMap[record.vendor_id]}
+                            onClick={() => handleApprove(record)}
+                            style={{
+                                background: '#1890ff',
+                                borderColor: '#1890ff',
+                                borderRadius: '4px',
+                                transition: 'background-color 0.3s',
+                                marginRight: '8px',
+                            }}
+                        >
+                            Activate
+                        </Button>
+                    </div>
+                </>
             ),
         },
     ]
@@ -184,6 +241,7 @@ const PendingVendors = () => {
                         current: currentPage,
                         onChange: (page) => setCurrentPage(page),
                     }}
+                    style={{ overflowX: 'auto' }}
                 />
             ) : (
                 <Empty
@@ -191,6 +249,122 @@ const PendingVendors = () => {
                     description="No data found!"
                 />
             )}
+            <Modal
+                title="KYC Details"
+                visible={isKycModalVisible}
+                onCancel={() => setIsKycModalVisible(false)}
+                footer={[
+                    <Button
+                        key="close"
+                        onClick={() => setIsKycModalVisible(false)}
+                    >
+                        Close
+                    </Button>,
+                ]}
+            >
+                {isKycLoading ? (
+                    <Spin />
+                ) : kycDetails?.vendor ? (
+                    <div style={{ lineHeight: '1.8' }}>
+                        <Paragraph>
+                            <UserOutlined /> <strong>First Name:</strong>{' '}
+                            {kycDetails.vendor.first_name || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <UserOutlined /> <strong>Last Name:</strong>{' '}
+                            {kycDetails.vendor.last_name || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <MailOutlined /> <strong>Email:</strong>{' '}
+                            {kycDetails.vendor.email || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <PhoneOutlined /> <strong>Phone No:</strong>{' '}
+                            {kycDetails.vendor.phone_no || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <FileTextOutlined /> <strong>GST No:</strong>{' '}
+                            {kycDetails.vendor.gstno || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <FileTextOutlined /> <strong>Company Name:</strong>{' '}
+                            {kycDetails.vendor.company_name || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <IdcardOutlined />{' '}
+                            <strong>Business Registration No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.business_reg_no ||
+                                'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <IdcardOutlined /> <strong>Aadhar No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.aadhar_no || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <IdcardOutlined /> <strong>Aadhar Copy:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.aadhar_copy ? (
+                                <a
+                                    href={
+                                        kycDetails.vendor.kycDetails.aadhar_copy
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View
+                                </a>
+                            ) : (
+                                'N/A'
+                            )}
+                        </Paragraph>
+                        <Paragraph>
+                            <FileTextOutlined /> <strong>PAN No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.pan_no || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <FileTextOutlined /> <strong>PAN Copy:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.pan_copy ? (
+                                <a
+                                    href={kycDetails.vendor.kycDetails.pan_copy}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View
+                                </a>
+                            ) : (
+                                'N/A'
+                            )}
+                        </Paragraph>
+                        <Paragraph>
+                            <HomeOutlined /> <strong>Address Proof:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.add_prof ? (
+                                <a
+                                    href={kycDetails.vendor.kycDetails.add_prof}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View
+                                </a>
+                            ) : (
+                                'N/A'
+                            )}
+                        </Paragraph>
+                        <Paragraph>
+                            <BankOutlined /> <strong>Bank Account No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.bank_acc_no || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <BankOutlined /> <strong>Bank Name:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.bank_name || 'N/A'}
+                        </Paragraph>
+                        <Paragraph>
+                            <BankOutlined /> <strong>IFSC Code:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.ifsc_code || 'N/A'}
+                        </Paragraph>
+                    </div>
+                ) : (
+                    <Empty description="No KYC details available" />
+                )}
+            </Modal>
         </>
     )
 }

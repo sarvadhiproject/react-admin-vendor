@@ -35,7 +35,7 @@ const AddJewellery = ({ handleClose }) => {
         mrp: '',
         selling_price: '',
         vendor_price: '',
-        stock_quantity: '',
+        // stock_quantity: '',
         weight: '',
         clasp_type: '',
         gold_type: '',

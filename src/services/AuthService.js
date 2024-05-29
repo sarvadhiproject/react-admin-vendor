@@ -2,7 +2,6 @@ import ApiService from './ApiService'
 
 export async function apiSignIn(data) {
     return ApiService.fetchData({
-        // url: '/auth/admin-login',
         url: '/auth/vendor-login',
         method: 'post',
         data,
@@ -11,7 +10,6 @@ export async function apiSignIn(data) {
 export async function apiSignInAdmin(data) {
     return ApiService.fetchData({
         url: '/auth/admin-login',
-        // url: '/auth/vendor-login',
         method: 'post',
         data,
     })

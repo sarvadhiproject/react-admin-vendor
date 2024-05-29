@@ -50,7 +50,7 @@ function useAuth() {
 
                 const redirectUrl = query.get(REDIRECT_URL_KEY)
                 navigate(
-                    redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
+                    redirectUrl ? redirectUrl : appConfig.authenticatedEntryPathVendor
                 )
                 return {
                     status: 'success',
@@ -198,7 +198,14 @@ function useAuth() {
     const handleSignOut = () => {
         dispatch(onSignOutSuccess())
         dispatch(setUser(initialState))
-        navigate(appConfig.unAuthenticatedEntryPath)
+        const decodedToken = jwtDecode(token)
+        const authority = decodedToken.authority
+        console.log(authority)
+        if (authority === 'admin') {
+            navigate(appConfig.unAuthenticatedAdminEntryPath)
+        } else {
+            navigate(appConfig.unAuthenticatedEntryPath)
+        }
     }
 
     const signOut = async () => {

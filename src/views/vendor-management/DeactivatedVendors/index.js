@@ -136,6 +136,7 @@ const DeactivatedVendors = ({ refreshDeactivated }) => {
                     columns={columns}
                     size="small"
                     dataSource={filteredVendors}
+                    style={{ overflowX: 'auto' }}
                     pagination={{
                         current: currentPage,
                         onChange: (page) => setCurrentPage(page),

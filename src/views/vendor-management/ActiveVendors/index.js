@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Table, Button, Modal, Input, message, Empty } from 'antd'
+import { Table, Button, Modal, Input, message, Empty, Spin } from 'antd'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
 
@@ -12,7 +12,9 @@ const ActiveVendors = ({ onDeactivate }) => {
     const [deactivateReason, setDeactivateReason] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
-
+    const [kycDetails, setKycDetails] = useState(null)
+    const [isKycModalVisible, setIsKycModalVisible] = useState(false)
+    const [isKycLoading, setIsKycLoading] = useState(false)
     useEffect(() => {
         fetchData()
     }, [])
@@ -32,7 +34,21 @@ const ActiveVendors = ({ onDeactivate }) => {
         setSelectedVendor(record)
         setVisible(true)
     }
-
+    const fetchKycDetails = async (vendorId) => {
+        setIsKycLoading(true)
+        try {
+            const response = await axios.get(
+                `${appConfig.apiPrefix}/vendor/getKYCDetails/${vendorId}`
+            )
+            setKycDetails(response.data)
+            setIsKycModalVisible(true)
+        } catch (error) {
+            message.error('Failed to fetch KYC details')
+            console.error('Error fetching KYC details:', error)
+        } finally {
+            setIsKycLoading(false)
+        }
+    }
     const handleCancel = () => {
         setVisible(false)
         setDeactivateReason('')
@@ -155,17 +171,34 @@ const ActiveVendors = ({ onDeactivate }) => {
             title: 'Action',
             dataIndex: 'action',
             render: (_, record) => (
-                <Button
-                    type="danger"
-                    onClick={() => handleDeactivate(record)}
-                    style={{
-                        background: '#ff4d4f',
-                        borderColor: '#ff4d4f',
-                        color: 'white',
-                    }}
-                >
-                    Deactivate
-                </Button>
+                <>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Button
+                            type="default"
+                            onClick={() => fetchKycDetails(record.vendor_id)}
+                            style={{
+                                background: '#ffa500',
+                                borderColor: '#ffa500',
+                                color: '#fff',
+                                borderRadius: '4px',
+                                transition: 'background-color 0.3s',
+                            }}
+                        >
+                            View KYC
+                        </Button>
+                        <Button
+                            type="danger"
+                            onClick={() => handleDeactivate(record)}
+                            style={{
+                                background: '#ff4d4f',
+                                borderColor: '#ff4d4f',
+                                color: 'white',
+                            }}
+                        >
+                            Deactivate
+                        </Button>
+                    </div>
+                </>
             ),
         },
     ]
@@ -198,6 +231,7 @@ const ActiveVendors = ({ onDeactivate }) => {
                     columns={columns}
                     size="small"
                     dataSource={filteredVendors}
+                    style={{ overflowX: 'auto' }}
                     pagination={{
                         current: currentPage,
                         onChange: (page) => setCurrentPage(page),
@@ -229,6 +263,122 @@ const ActiveVendors = ({ onDeactivate }) => {
                     value={deactivateReason}
                     onChange={(e) => setDeactivateReason(e.target.value)}
                 /> */}
+            </Modal>
+            <Modal
+                title="KYC Details"
+                visible={isKycModalVisible}
+                onCancel={() => setIsKycModalVisible(false)}
+                footer={[
+                    <Button
+                        key="close"
+                        onClick={() => setIsKycModalVisible(false)}
+                    >
+                        Close
+                    </Button>,
+                ]}
+            >
+                {isKycLoading ? (
+                    <Spin />
+                ) : kycDetails?.vendor ? (
+                    <div>
+                        <p>
+                            <strong>First Name:</strong>{' '}
+                            {kycDetails.vendor.first_name || 'null'}
+                        </p>
+                        <p>
+                            <strong>Last Name:</strong>{' '}
+                            {kycDetails.vendor.last_name || 'null'}
+                        </p>
+                        <p>
+                            <strong>Email:</strong>{' '}
+                            {kycDetails.vendor.email || 'null'}
+                        </p>
+                        <p>
+                            <strong>Phone No:</strong>{' '}
+                            {kycDetails.vendor.phone_no || 'null'}
+                        </p>
+                        <p>
+                            <strong>GST No:</strong>{' '}
+                            {kycDetails.vendor.gstno || 'null'}
+                        </p>
+                        <p>
+                            <strong>Company Name:</strong>{' '}
+                            {kycDetails.vendor.company_name || 'null'}
+                        </p>
+                        <p>
+                            <strong>Business Registration No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.business_reg_no ||
+                                'null'}
+                        </p>
+                        <p>
+                            <strong>Aadhar No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.aadhar_no || 'null'}
+                        </p>
+                        <p>
+                            <strong>Aadhar Copy:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.aadhar_copy ? (
+                                <a
+                                    href={
+                                        kycDetails.vendor.kycDetails.aadhar_copy
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View
+                                </a>
+                            ) : (
+                                'null'
+                            )}
+                        </p>
+                        <p>
+                            <strong>PAN No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.pan_no || 'null'}
+                        </p>
+                        <p>
+                            <strong>PAN Copy:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.pan_copy ? (
+                                <a
+                                    href={kycDetails.vendor.kycDetails.pan_copy}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View
+                                </a>
+                            ) : (
+                                'null'
+                            )}
+                        </p>
+                        <p>
+                            <strong>Address Proof:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.add_prof ? (
+                                <a
+                                    href={kycDetails.vendor.kycDetails.add_prof}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View
+                                </a>
+                            ) : (
+                                'null'
+                            )}
+                        </p>
+                        <p>
+                            <strong>Bank Account No:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.bank_acc_no ||
+                                'null'}
+                        </p>
+                        <p>
+                            <strong>Bank Name:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.bank_name || 'null'}
+                        </p>
+                        <p>
+                            <strong>IFSC Code:</strong>{' '}
+                            {kycDetails.vendor.kycDetails?.ifsc_code || 'null'}
+                        </p>
+                    </div>
+                ) : (
+                    <Empty description="No KYC details available" />
+                )}
             </Modal>
         </>
     )

@@ -44,16 +44,16 @@ const appsRoute = [
         key: 'orderList',
         path: `${APP_PREFIX_PATH}/sales/order-list`,
         component: React.lazy(() => import('views/sales/OrderList')),
-        authority: [ADMIN, VENDOR],
+        authority: [ADMIN],
     },
     {
         key: 'appsSales.orderDetails',
-        path: `${APP_PREFIX_PATH}/sales/order-details/:orderId`,
+        path: `${APP_PREFIX_PATH}/sales/order-details/:order_id`,
         component: React.lazy(() => import('views/sales/OrderDetails')),
         authority: [ADMIN, USER],
-        meta: {
-            header: 'Order Details',
-        },
+        // meta: {
+        //     header: 'Order Details',
+        // },
     },
     {
         key: 'appsAccount.settings',
@@ -96,6 +96,14 @@ const appsRoute = [
         path: `${APP_PREFIX_PATH}/vendor-orders/OrderManagement`,
         component: React.lazy(() =>
             import('views/vendor-orders/OrderManagement')
+        ),
+        authority: [VENDOR],
+    },
+    {
+        key: 'apps.vendorOrderManagement',
+        path: `${APP_PREFIX_PATH}/vendor-orders/OrderManagement/OrderDetails/:order_id`,
+        component: React.lazy(() =>
+            import('views/vendor-orders/OrderManagement/OrderDetails')
         ),
         authority: [VENDOR],
     },

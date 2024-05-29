@@ -277,7 +277,7 @@ const EditInDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col>
+                {/* <Col>
                     <Form.Item
                         name="stock_quantity"
                         label="Stock Quantity"
@@ -294,7 +294,7 @@ const EditInDepthDetails = ({ onNext, onPrev, formData, setFormData }) => {
                             min={0}
                         />
                     </Form.Item>
-                </Col>
+                </Col> */}
             </Row>
 
             <Form.Item>

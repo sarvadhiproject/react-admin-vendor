@@ -262,22 +262,22 @@ const ListJewellery = () => {
                 />
             ),
         },
-        {
-            title: 'Stock Quantity',
-            dataIndex: 'stock_quantity',
-            key: 'stock_quantity',
-            sorter: (a, b) => a.stock_quantity - b.stock_quantity,
-            render: (value) => (
-                <span
-                    style={{
-                        color: value <= 3 ? 'red' : 'green',
-                        fontWeight: '600',
-                    }}
-                >
-                    {value}
-                </span>
-            ),
-        },
+        // {
+        //     title: 'Stock Quantity',
+        //     dataIndex: 'stock_quantity',
+        //     key: 'stock_quantity',
+        //     sorter: (a, b) => a.stock_quantity - b.stock_quantity,
+        //     render: (value) => (
+        //         <span
+        //             style={{
+        //                 color: value <= 3 ? 'red' : 'green',
+        //                 fontWeight: '600',
+        //             }}
+        //         >
+        //             {value}
+        //         </span>
+        //     ),
+        // },
         {
             title: 'Action',
             key: 'action',
@@ -555,12 +555,12 @@ const ListJewellery = () => {
                                         </span>
                                         {selectedProduct.occasion_type}
                                     </p>
-                                    <p>
+                                    {/* <p>
                                         <span style={{ fontWeight: '600' }}>
                                             Stock Quantity :{' '}
                                         </span>
                                         {selectedProduct.stock_quantity}
-                                    </p>
+                                    </p> */}
                                 </Col>
                             </Row>
                         )}
