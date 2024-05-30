@@ -107,6 +107,12 @@ const appsRoute = [
         ),
         authority: [VENDOR],
     },
+    {
+        key: 'apps.coupons',
+        path: `${APP_PREFIX_PATH}/manage-coupons`,
+        component: React.lazy(() => import('views/manage-coupons')),
+        authority: [VENDOR],
+    },
     // {
     //     key: 'vendorManagementActive',
     //     path: `${APP_PREFIX_PATH}/vendor-management/ActiveVendors`,

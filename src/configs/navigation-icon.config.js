@@ -26,7 +26,7 @@ import {
     HiOutlineCode,
 } from 'react-icons/hi'
 import { GiBigDiamondRing } from 'react-icons/gi'
-import { MdOutlineShoppingCart } from 'react-icons/md'
+import { MdOutlineSell, MdOutlineShoppingCart, MdSell } from 'react-icons/md'
 
 const navigationIcon = {
     apps: <HiOutlineViewGridAdd />,
@@ -58,6 +58,7 @@ const navigationIcon = {
     changeLog: <HiOutlineCode />,
     ring: <GiBigDiamondRing />,
     order: <MdOutlineShoppingCart />,
+    coupons: <MdOutlineSell />,
 }
 
 export default navigationIcon
