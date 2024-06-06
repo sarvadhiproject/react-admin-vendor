@@ -16,6 +16,7 @@ import EditJewellery from '../EditJewellery'
 import AddJewellery from '../AddJewellery'
 import NumberFormat from 'react-number-format'
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -46,6 +47,10 @@ const ListJewellery = () => {
             .then((response) => {
                 if (response.data.data) {
                     setProducts(response.data.data)
+                    Cookies.set(
+                        'totalVendorProducts',
+                        response.data.data.length
+                    )
                 } else if (
                     response.data.message ===
                     'No products found for this vendor'

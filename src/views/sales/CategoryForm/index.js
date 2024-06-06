@@ -112,12 +112,8 @@ const CategoryForm = forwardRef((props, ref) => {
 
     return (
         <div className="flex items-center">
-            <Card className="w-full max-w-md p-8 border border-gray-300">
-                <Form
-                    form={form}
-                    onFinish={onFinish}
-                    className="w-full max-w-md"
-                >
+            <Card className="w-full max-w-md p-8">
+                <Form form={form} onFinish={onFinish}>
                     <Form.Item
                         name="category_name"
                         label="Category Name"

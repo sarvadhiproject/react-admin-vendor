@@ -31,7 +31,7 @@ const ProductTableTools = () => {
                 </Button>
             </div>
             <Modal
-                title={<h3>Add new category</h3>} // Set modal title if needed
+                title="Add new category" // Set modal title if needed
                 open={showModal} // Use "visible" instead of "isOpen"
                 onCancel={closeModal} // Use "onCancel" instead of "onRequestClose"
                 footer={null} // If you don't want a footer in your modal

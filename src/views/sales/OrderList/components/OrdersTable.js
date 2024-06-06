@@ -18,6 +18,7 @@ import appConfig from 'configs/app.config'
 import { HiOutlineTrash, HiDownload } from 'react-icons/hi'
 import { Link, useNavigate } from 'react-router-dom'
 import { CSVLink } from 'react-csv'
+import Cookies from 'js-cookie'
 
 const OrdersTable = () => {
     const [data, setData] = useState([])
@@ -39,6 +40,7 @@ const OrdersTable = () => {
                 const response = await axios.get(
                     `${appConfig.apiPrefix}/order/admin/orders`
                 )
+
                 const ordersData = response.data.orders.map((order) => ({
                     order_id: order.order_id,
                     order_date: order.order_date,
@@ -49,6 +51,8 @@ const OrdersTable = () => {
                     total_amount: order.total_amount,
                 }))
                 setData(ordersData)
+                Cookies.set('totalOrders', ordersData.length)
+                // console.log('orders::' + ordersData.length)
                 setError(null)
             } catch (error) {
                 console.error('Error fetching orders:', error)
@@ -262,7 +266,9 @@ const OrdersTable = () => {
     return (
         <>
             <div className="lg:flex items-center justify-between mb-4">
-                <h3 className="mb-4 lg:mb-0">Orders</h3>
+                <h3 style={{ color: '#022B4E' }} className="mb-4 lg:mb-0">
+                    Orders
+                </h3>
                 <div className="flex items-center">
                     <Button
                         icon={<HiDownload />}

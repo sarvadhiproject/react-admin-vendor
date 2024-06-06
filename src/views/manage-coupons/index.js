@@ -21,6 +21,7 @@ import NumberFormat from 'react-number-format'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import moment from 'moment'
+import Cookies from 'js-cookie'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -47,6 +48,7 @@ const Coupons = () => {
                 `${appConfig.apiPrefix}/coupon/vendor/${vendorID}`
             )
             setCoupons(response.data)
+            Cookies.set('totalVendorCoupons',response.data.length)
         } catch (error) {
             // message.error('Failed to fetch coupons')
             toast.push(
@@ -414,14 +416,14 @@ const Coupons = () => {
                                     {
                                         required: true,
                                         message:
-                                            'Please enter the discount type',
+                                            'Please select the discount type',
                                     },
                                 ]}
                             >
                                 <Select placeholder="Select Discount Type">
-                                    <Select.Option value="Percentage">
+                                    {/* <Select.Option value="Percentage">
                                         Percentage (%)
-                                    </Select.Option>
+                                    </Select.Option> */}
                                     <Select.Option value="Fixed Value">
                                         Fixed Value
                                     </Select.Option>

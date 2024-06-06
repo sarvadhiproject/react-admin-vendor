@@ -4,6 +4,7 @@ import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts } from '../store/dataSlice'
 import axios from 'axios'
+import Cookies from 'js-cookie' // Add this line to import cookies
 
 import {
     Table,
@@ -14,6 +15,7 @@ import {
     Input,
     Upload,
     Tooltip,
+    Card,
 } from 'antd'
 import appConfig from 'configs/app.config'
 import { UploadOutlined } from '@ant-design/icons'
@@ -55,6 +57,13 @@ const ProductTable = () => {
     useEffect(() => {
         dispatch(getProducts())
     }, [dispatch])
+
+    useEffect(() => {
+        if (data && data.length) {
+            // Store the total number of categories in cookies
+            Cookies.set('totalCategories', data.length)
+        }
+    }, [data])
 
     const handleChange = (info) => {
         if (info.file.status === 'uploading') {
@@ -138,7 +147,6 @@ const ProductTable = () => {
     }, [currentPage])
     const columns = [
         {
-            // title: 'Category ID',
             title: '#',
             dataIndex: 'category_id',
             key: 'category_id',
@@ -183,10 +191,10 @@ const ProductTable = () => {
                     >
                         <Tooltip title="Edit Category">
                             <HiOutlinePencil
-                                size={20}
+                                size={18}
                                 style={{
                                     marginLeft: '20px',
-                                    color: 'blue',
+                                    color: '#022B4E',
                                     cursor: 'pointer',
                                     marginRight: '10px',
                                 }}
@@ -199,7 +207,7 @@ const ProductTable = () => {
                     >
                         <Tooltip title="Delete Category">
                             <HiOutlineTrash
-                                size={20}
+                                size={18}
                                 style={{ color: 'red', cursor: 'pointer' }}
                             />
                         </Tooltip>
@@ -279,47 +287,49 @@ const ProductTable = () => {
                     </Button>,
                 ]}
             >
-                <Form
-                    form={form}
-                    onFinish={handleEditSubmit}
-                    initialValues={{
-                        category_name: editingCategory?.category_name,
-                        category_image: fileList,
-                    }}
-                >
-                    <Form.Item
-                        label="Category Name"
-                        name="category_name"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please enter category name',
-                            },
-                        ]}
+                <Card className="w-full max-w-md p-8">
+                    <Form
+                        form={form}
+                        onFinish={handleEditSubmit}
+                        initialValues={{
+                            category_name: editingCategory?.category_name,
+                            category_image: fileList,
+                        }}
                     >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Category Image"
-                        name="category_image"
-                        valuePropName="fileList"
-                        getValueFromEvent={normFile}
-                    >
-                        <Upload
-                            maxCount={1}
-                            listType="picture-card"
-                            showUploadList={{
-                                showPreviewIcon: true,
-                                showRemoveIcon: true,
-                            }}
-                            action={`${appConfig.apiPrefix}/update-category/${editingCategory?.category_id}`}
-                            beforeUpload={beforeUpload}
-                            onChange={handleChange}
+                        <Form.Item
+                            label="Category Name"
+                            name="category_name"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please enter category name',
+                                },
+                            ]}
                         >
-                            {uploadButton}
-                        </Upload>
-                    </Form.Item>
-                </Form>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="Category Image"
+                            name="category_image"
+                            valuePropName="fileList"
+                            getValueFromEvent={normFile}
+                        >
+                            <Upload
+                                maxCount={1}
+                                listType="picture-card"
+                                showUploadList={{
+                                    showPreviewIcon: true,
+                                    showRemoveIcon: true,
+                                }}
+                                action={`${appConfig.apiPrefix}/update-category/${editingCategory?.category_id}`}
+                                beforeUpload={beforeUpload}
+                                onChange={handleChange}
+                            >
+                                {uploadButton}
+                            </Upload>
+                        </Form.Item>
+                    </Form>
+                </Card>
             </Modal>
             <Modal
                 title={<h4>Confirm Deletion</h4>}

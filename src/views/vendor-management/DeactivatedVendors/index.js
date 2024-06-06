@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Table, Button, Input, Empty } from 'antd'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
+import { Link } from 'react-router-dom'
 
 const DeactivatedVendors = ({ refreshDeactivated }) => {
     const [data, setData] = useState([])
@@ -77,7 +78,11 @@ const DeactivatedVendors = ({ refreshDeactivated }) => {
         {
             title: 'Email',
             dataIndex: 'email',
-            render: (text) => <span style={{ color: '#666' }}>{text}</span>,
+            render: (text) => (
+                <Link href={`mailto:${text}`} style={{ color: '#3D77FF' }}>
+                    {text}
+                </Link>
+            ),
         },
         {
             title: 'Phone No',
@@ -105,6 +110,33 @@ const DeactivatedVendors = ({ refreshDeactivated }) => {
                 </span>
             ),
             sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            render: (_, record) => (
+                <>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Link
+                            to={`/app/vendor-management/kyc-details`}
+                            state={{ vendor_id: record.vendor_id }}
+                        >
+                            <Button
+                                type="default"
+                                style={{
+                                    background: '#ffa500',
+                                    borderColor: '#ffa500',
+                                    color: '#fff',
+                                    borderRadius: '4px',
+                                    transition: 'background-color 0.3s',
+                                }}
+                            >
+                                View KYC
+                            </Button>
+                        </Link>
+                    </div>
+                </>
+            ),
         },
     ]
 

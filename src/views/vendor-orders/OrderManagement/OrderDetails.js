@@ -132,7 +132,7 @@ const OrderDetails = () => {
                 return 'Unknown Status'
         }
     }
-     const statusMap = {
+    const statusMap = {
         1: 'Order Received',
         2: 'Processing',
         3: 'Shipped',
@@ -140,14 +140,14 @@ const OrderDetails = () => {
         5: 'Delivered',
         // 6: 'Cancelled',
     }
-     const statusColorMapping = {
+    const statusColorMapping = {
         1: { backgroundColor: '#fde3cf', color: '#fa8c16' },
         2: { backgroundColor: '#e6f7ff', color: '#1890ff' },
         3: { backgroundColor: '#CF9FFF', color: 'purple' },
         4: { backgroundColor: '#e6f7ff', color: '#52c41a' },
         5: { backgroundColor: '#d9f7be', color: '#52c41a' },
         6: { backgroundColor: '#fff1f0', color: '#f5222d' },
-    };
+    }
 
     if (!order_id) {
         return <div>Loading...</div>
@@ -170,8 +170,7 @@ const OrderDetails = () => {
     // Add totalGst to each order item
     const orderItemsWithOtherDetails = orderItems.map((item) => ({
         ...item,
-        totalGst:
-            (parseFloat(item.sub_total) * 0.03).toFixed(2),
+        totalGst: (parseFloat(item.sub_total) * 0.03).toFixed(2),
     }))
 
     const totalSubTotal = order.orderItems.reduce(
@@ -279,14 +278,15 @@ const OrderDetails = () => {
                 <h3 style={{ marginRight: '1rem' }}>Order #{order_id} </h3>
                 <span
                     style={{
-                        backgroundColor: statusColorMapping[status]?.backgroundColor || '#E0B0FF',
+                        backgroundColor:
+                            statusColorMapping[status]?.backgroundColor ||
+                            '#E0B0FF',
                         color: statusColorMapping[status]?.color || 'purple',
                         padding: '4px 8px',
                         borderRadius: '4px',
                     }}
                 >
                     {statusMap[status]}
-
                 </span>
             </div>
 
@@ -344,10 +344,10 @@ const OrderDetails = () => {
                                 </span>
                                 <NumberFormat
                                     displayType="text"
-                                    value={(
-                                        Math.round(totalSubTotal +
-                                                totalSubTotal.toFixed(2) * 0.03
-                                    ).toFixed(2))}
+                                    value={Math.round(
+                                        totalSubTotal +
+                                            totalSubTotal.toFixed(2) * 0.03
+                                    ).toFixed(2)}
                                     prefix={'₹'}
                                     thousandSeparator={true}
                                     renderText={(value) => (
@@ -470,9 +470,7 @@ const OrderDetails = () => {
                             <Space>
                                 <TruckOutlined style={{ fontSize: '16px' }} />
                                 <Text strong>Shipping Cost: </Text>
-                                <Text>
-                                    Free
-                                </Text>
+                                <Text>Free</Text>
                             </Space>
                         </Paragraph>
                         <Paragraph>
@@ -680,11 +678,11 @@ const OrderDetails = () => {
                         >
                             <Step
                                 title="Order Received"
-                                 description={
+                                description={
                                     orderStatus.order_received ? (
                                         <span style={{ color: '#666' }}>
                                             {new Date(
-                                                 orderStatus?.order_received
+                                                orderStatus?.order_received
                                             ).toLocaleString('en-GB', {
                                                 weekday: 'short',
                                                 month: 'short',
@@ -702,11 +700,11 @@ const OrderDetails = () => {
                             />
                             <Step
                                 title="Processing"
-                                 description={
+                                description={
                                     orderStatus.processing ? (
                                         <span style={{ color: '#666' }}>
                                             {new Date(
-                                                 orderStatus?.processing
+                                                orderStatus?.processing
                                             ).toLocaleString('en-GB', {
                                                 weekday: 'short',
                                                 month: 'short',
@@ -724,7 +722,7 @@ const OrderDetails = () => {
                             />
                             <Step
                                 title="Shipped"
-                               description={
+                                description={
                                     orderStatus.shipped ? (
                                         <span style={{ color: '#666' }}>
                                             {new Date(
@@ -769,8 +767,7 @@ const OrderDetails = () => {
                             <Step
                                 title="Delivered"
                                 description={
-                                    orderStatus.delivered
-                                        ? (
+                                    orderStatus.delivered ? (
                                         <span style={{ color: '#666' }}>
                                             {new Date(
                                                 orderStatus?.delivered
@@ -783,8 +780,8 @@ const OrderDetails = () => {
                                                 minute: 'numeric',
                                                 hour12: true,
                                             })}
-                                        </span>)
-                                        : null
+                                        </span>
+                                    ) : null
                                 }
                                 content="Your order has been delivered."
                                 icon={<CheckCircleOutlined />}
@@ -808,18 +805,19 @@ const OrderDetails = () => {
                             </Button>
                         )}
                 </Card>
-                <Button
-                    style={{ marginTop: '18px' }}
-                    varient="solid"
-                    size="sm"
-                    onClick={handleRefresh}
-                >
-                    Back to Order List
-                </Button>
+                <div style={{ marginTop: '18px' }}>
+                    <Button
+                        style={{ color: '#022B4E' }}
+                        varient="solid"
+                        size="sm"
+                        onClick={handleRefresh}
+                    >
+                        Back to Order List
+                    </Button>
+                </div>
             </div>
         </>
     )
 }
 
 export default OrderDetails
-

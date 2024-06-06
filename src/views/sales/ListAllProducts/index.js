@@ -24,6 +24,7 @@ import { Spin } from 'antd'
 import { Notification, toast } from 'components/ui'
 import NumberFormat from 'react-number-format'
 import styled from 'styled-components'
+import Cookies from 'js-cookie'
 
 const TableContainer = styled.div`
     padding: 20px;
@@ -52,6 +53,7 @@ const ProductList = () => {
             .then((response) => {
                 if (response.data.data) {
                     setProducts(response.data.data)
+                    Cookies.set('totalProducts', response.data.data.length)
                 } else {
                     console.error('Invalid response format:', response.data)
                 }
@@ -107,6 +109,7 @@ const ProductList = () => {
             .then((response) => {
                 if (Array.isArray(response.data.data)) {
                     setProducts(response.data.data)
+                    Cookies.set('totalProducts', response.data.data.length)
                 } else {
                     console.error('Invalid response format:', response.data)
                 }
@@ -362,7 +365,7 @@ const ProductList = () => {
                     marginBottom: '20px',
                 }}
             >
-                <h3>Manage Products</h3>
+                <h3 style={{ color: '#022B4E' }}>Manage Products</h3>
                 <div>
                     <Input.Search
                         placeholder="Search by vendor or product"

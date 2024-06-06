@@ -92,6 +92,32 @@ const appsRoute = [
         authority: [ADMIN],
     },
     {
+        key: 'apps.vendorManagement',
+        path: `${APP_PREFIX_PATH}/vendor-management/kyc-details`,
+        component: React.lazy(() =>
+            import('views/vendor-management/KycDetails')
+        ),
+        authority: [ADMIN],
+    },
+    {
+        key: 'customers',
+        path: `${APP_PREFIX_PATH}/sales/AllCustomers`,
+        component: React.lazy(() => import('views/sales/AllCustomers')),
+        authority: [ADMIN],
+    },
+    {
+        key: 'banner',
+        path: `${APP_PREFIX_PATH}/manage-banner`,
+        component: React.lazy(() => import('views/manage-banner')),
+        authority: [ADMIN],
+    },
+    {
+        key: 'vendor.customers',
+        path: `${APP_PREFIX_PATH}/vendor-customers`,
+        component: React.lazy(() => import('views/vendor-customers')),
+        authority: [VENDOR],
+    },
+    {
         key: 'apps.vendorOrderManagement',
         path: `${APP_PREFIX_PATH}/vendor-orders/OrderManagement`,
         component: React.lazy(() =>

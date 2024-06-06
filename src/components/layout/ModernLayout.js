@@ -23,7 +23,7 @@ const HeaderActionsEnd = () => {
     return (
         <>
             {/* <Notification /> */}
-            <SidePanel />
+             {/* <SidePanel />    //Settings icon */}
             <UserDropdown hoverable={false} />
         </>
     )

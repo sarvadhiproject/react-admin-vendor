@@ -18,11 +18,12 @@ import { HiOutlineTrash, HiDownload } from 'react-icons/hi'
 import { Link, useNavigate } from 'react-router-dom'
 import { CSVLink } from 'react-csv'
 import { jwtDecode } from 'jwt-decode'
+import Cookies from 'js-cookie'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
 var vendor_id = decodedToken.id
-console.log(vendor_id)
+// console.log(vendor_id)
 
 const OrderManagement = () => {
     const [data, setData] = useState([])
@@ -59,6 +60,8 @@ const OrderManagement = () => {
                     ),
                 }))
                 setData(ordersData)
+                Cookies.set('totalVendorOrders', response.data.length)
+                // console.log(response.data.length)
             } catch (error) {
                 console.error('Error fetching orders:', error)
             } finally {

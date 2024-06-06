@@ -25,8 +25,13 @@ import {
     HiOutlineVariable,
     HiOutlineCode,
 } from 'react-icons/hi'
-import { GiBigDiamondRing } from 'react-icons/gi'
+import { GiBigDiamondRing, GiDropEarrings } from 'react-icons/gi'
 import { MdOutlineSell, MdOutlineShoppingCart, MdSell } from 'react-icons/md'
+import { IoSettingsOutline } from 'react-icons/io5'
+import { FaChartPie, FaRegChartBar } from 'react-icons/fa'
+import { GiCrystalEarrings } from 'react-icons/gi'
+import { ImUsers } from 'react-icons/im'
+import { MdOutlineBookmarks } from 'react-icons/md'
 
 const navigationIcon = {
     apps: <HiOutlineViewGridAdd />,
@@ -59,6 +64,12 @@ const navigationIcon = {
     ring: <GiBigDiamondRing />,
     order: <MdOutlineShoppingCart />,
     coupons: <MdOutlineSell />,
+    settings: <IoSettingsOutline style={{ fontSize: '22px' }} />,
+    // overview: <FaChartPie style={{ fontSize: '22px' }} />,
+    overview: <FaRegChartBar style={{ fontSize: '22px' }} />,
+    categories: <GiDropEarrings />,
+    users: <ImUsers style={{ fontSize: '22px' }} />,
+    banner: <MdOutlineBookmarks style={{ fontSize: '22px' }} />,
 }
 
 export default navigationIcon

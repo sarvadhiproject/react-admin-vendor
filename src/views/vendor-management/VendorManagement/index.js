@@ -37,7 +37,9 @@ const VendorManagement = () => {
 
     return (
         <>
-            <h3 style={{ marginBottom: '10px' }}>Manage Vendors</h3>
+            <h3 style={{ marginBottom: '10px', color: '#022B4E' }}>
+                Manage Vendors
+            </h3>
             <Tabs
                 activeKey={activeKey}
                 items={tabItems}
