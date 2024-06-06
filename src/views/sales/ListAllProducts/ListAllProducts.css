@@ -7,7 +7,8 @@
 }
 
 .product-card {
-    border: 1px solid #022B4E;
+    /* border: 1px solid #022B4E; */
+    border: 1px solid #832729;
     padding: 10px;
     width: 300px;
 }

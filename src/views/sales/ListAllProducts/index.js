@@ -365,7 +365,8 @@ const ProductList = () => {
                     marginBottom: '20px',
                 }}
             >
-                <h3 style={{ color: '#022B4E' }}>Manage Products</h3>
+                {/* <h3 style={{ color: '#022B4E' }}>Manage Products</h3> */}
+                <h3 style={{ color: '#832729' }}>Manage Products</h3>
                 <div>
                     <Input.Search
                         placeholder="Search by vendor or product"

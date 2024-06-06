@@ -11,7 +11,10 @@ const CategoryList = () => {
     return (
         <AdaptableCard className="h-full" bodyClass="h-full">
             <div className="lg:flex items-center justify-between mb-4">
-                <h3 style={{ color: '#022B4E' }} className="mb-4 lg:mb-0">
+                {/* <h3 style={{ color: '#022B4E' }} className="mb-4 lg:mb-0">
+                    Manage Categories
+                </h3> */}
+                <h3 style={{ color: '#832729' }} className="mb-4 lg:mb-0">
                     Manage Categories
                 </h3>
                 <ProductTableTools />

@@ -281,7 +281,8 @@ const ProductTable = () => {
                         key="submit"
                         type="primary"
                         onClick={() => form.submit()}
-                        style={{ backgroundColor: 'blue', color: 'white' }}
+                        // style={{ backgroundColor: 'blue', color: 'white' }}
+                        style={{ backgroundColor: '#832729', color: 'white' }}
                     >
                         Save
                     </Button>,

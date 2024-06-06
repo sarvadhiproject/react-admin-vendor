@@ -110,7 +110,8 @@ const AddJewellery = ({ handleClose }) => {
 
     return (
         <div>
-            <h3 style={{ color: '#022B4E' }}>Add Jewellery</h3>
+            {/* <h3 style={{ color: '#022B4E' }}>Add Jewellery</h3> */}
+            <h3 style={{ color: '#832729' }}>Add Jewellery</h3>
             <Steps style={{ marginTop: '20px' }} current={current}>
                 {steps.map((step, index) => (
                     <Step key={index} title={step.title} />

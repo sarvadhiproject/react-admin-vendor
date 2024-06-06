@@ -122,7 +122,8 @@ function AllCustomers() {
                     marginBottom: '20px',
                 }}
             >
-                <h3 style={{ color: '#022B4E' }}>Customers</h3>
+                {/* <h3 style={{ color: '#022B4E' }}>Customers</h3> */}
+                <h3 style={{ color: '#832729' }}>Customers</h3>
                 <div>
                     <Input.Search
                         placeholder="Search customer.."

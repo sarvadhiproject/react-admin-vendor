@@ -79,8 +79,10 @@ const AddProductMetadata = ({ onNext, formData, setFormData }) => {
                     type="primary"
                     htmlType="submit"
                     style={{
-                        background: '#1890ff',
-                        borderColor: '#1890ff',
+                        // background: '#1890ff',
+                        // borderColor: '#1890ff',
+                        background: '#832729',
+                        borderColor: '#832729',
                         borderRadius: '4px',
                         marginTop: '10px',
                         width: '80px',

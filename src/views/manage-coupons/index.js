@@ -48,7 +48,7 @@ const Coupons = () => {
                 `${appConfig.apiPrefix}/coupon/vendor/${vendorID}`
             )
             setCoupons(response.data)
-            Cookies.set('totalVendorCoupons',response.data.length)
+            Cookies.set('totalVendorCoupons', response.data.length)
         } catch (error) {
             // message.error('Failed to fetch coupons')
             toast.push(
@@ -317,7 +317,8 @@ const Coupons = () => {
     return (
         <>
             <div className="flex justify-between items-center mb-6">
-                <h3 style={{ color: '#022B4E' }}>Coupons</h3>
+                {/* <h3 style={{ color: '#022B4E' }}>Coupons</h3> */}
+                <h3 style={{ color: '#832729' }}>Coupons</h3>
                 <div className="flex items-center">
                     <Input.Search
                         placeholder="Search coupon code..."
@@ -335,7 +336,7 @@ const Coupons = () => {
                         block
                         variant="solid"
                         size="sm"
-                        style={{ width: '150px' }}
+                        style={{ width: '150px', backgroundColor: '#832729' }}
                         icon={<HiPlusCircle />}
                     >
                         Add Coupons
@@ -374,8 +375,10 @@ const Coupons = () => {
                 onOk={handleAddOrUpdateCoupon}
                 okButtonProps={{
                     style: {
-                        backgroundColor: '#022B4E',
-                        borderColor: '#022B4E',
+                        // backgroundColor: '#022B4E',
+                        // borderColor: '#022B4E',
+                        backgroundColor: '#832729',
+                        borderColor: '#832729',
                     },
                     loading: isSaving, // Added loading state
                 }}

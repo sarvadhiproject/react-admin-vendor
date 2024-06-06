@@ -338,7 +338,8 @@ const ListJewellery = () => {
             ) : (
                 <>
                     <div className="flex justify-between items-center mb-6">
-                        <h3 style={{ color: '#022B4E' }}>Manage Products</h3>
+                        {/* <h3 style={{ color: '#022B4E' }}>Manage Products</h3> */}
+                        <h3 style={{ color: '#832729' }}>Manage Products</h3>
                         <div className="flex items-center">
                             <Input.Search
                                 placeholder="Search products..."
@@ -352,7 +353,11 @@ const ListJewellery = () => {
                                 block
                                 variant="solid"
                                 size="sm"
-                                style={{ width: '150px' }}
+                                // style={{ width: '150px' }}
+                                style={{
+                                    width: '150px',
+                                    backgroundColor: '#832729',
+                                }}
                                 icon={<HiPlusCircle />}
                             >
                                 Add Jewellery
@@ -413,7 +418,10 @@ const ListJewellery = () => {
                     </Modal>
                     <Modal
                         title={
-                            <h4 style={{ color: '#022B4E' }}>
+                            // <h4 style={{ color: '#022B4E' }}>
+                            //     Product Details
+                            // </h4>
+                            <h4 style={{ color: '#832729' }}>
                                 Product Details
                             </h4>
                         }

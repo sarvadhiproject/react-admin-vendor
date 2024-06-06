@@ -142,7 +142,8 @@ const KycDetails = () => {
                     marginBottom: '16px',
                 }}
             >
-                <h3 style={{ margin: 0, color: '#022B4E' }}>KYC Details</h3>
+                {/* <h3 style={{ margin: 0, color: '#022B4E' }}>KYC Details</h3> */}
+                <h3 style={{ margin: 0, color: '#832729' }}>KYC Details</h3>
                 {/* <Button
                     type="primary"
                     icon={
@@ -389,7 +390,8 @@ const KycDetails = () => {
                         navigate('/app/vendor-management/VendorManagement')
                     }
                     style={{
-                        color: '#022B4E',
+                        // color: '#022B4E',
+                        color: '#832729',
                         // borderColor: '#022B4E',
                     }}
                 >

@@ -232,7 +232,8 @@ const OrdersTable = () => {
                         icon={<EyeOutlined />}
                         onClick={() => handleDetailView(record)}
                         className="mr-4 hover:bg-blue-500 hover:text-white"
-                        style={{ backgroundColor: '#022b4e', color: 'white' }}
+                        // style={{ backgroundColor: '#022b4e', color: 'white' }}
+                        style={{ backgroundColor: '#832729', color: 'white' }}
                     >
                         View
                     </Button>
@@ -266,20 +267,31 @@ const OrdersTable = () => {
     return (
         <>
             <div className="lg:flex items-center justify-between mb-4">
-                <h3 style={{ color: '#022B4E' }} className="mb-4 lg:mb-0">
+                {/* <h3 style={{ color: '#022B4E' }} className="mb-4 lg:mb-0">
+                    Orders
+                </h3> */}
+                <h3 style={{ color: '#832729' }} className="mb-4 lg:mb-0">
                     Orders
                 </h3>
                 <div className="flex items-center">
                     <Button
                         icon={<HiDownload />}
                         className="mr-4"
-                        style={{ height: '35px' }}
+                        // style={{ height: '35px' }}
+                        style={{
+                            height: '35px',
+                            color: '#832729',
+                            borderColor: '#832729',
+                        }}
                     >
                         <CSVLink
                             data={data}
                             filename="orders.csv"
                             className="ant-btn ant-btn-primary"
-                            style={{ marginRight: '1rem' }}
+                            style={{
+                                marginRight: '1rem',
+                                color: '#832729',
+                            }}
                         >
                             Export
                         </CSVLink>

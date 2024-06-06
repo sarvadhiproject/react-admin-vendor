@@ -147,7 +147,8 @@ const EditJewellery = ({ productId, allData, handleCancelEdit }) => {
 
     return (
         <div>
-            <h3 style={{ color: '#022B4E' }}>Edit Jewellery</h3>
+            {/* <h3 style={{ color: '#022B4E' }}>Edit Jewellery</h3> */}
+            <h3 style={{ color: '#832729' }}>Edit Jewellery</h3>
             <Steps style={{ marginTop: '20px' }} current={current}>
                 {steps.map((step, index) => (
                     <Step key={index} title={step.title} />

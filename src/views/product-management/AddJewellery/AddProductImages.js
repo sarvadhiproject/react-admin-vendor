@@ -149,8 +149,10 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                         type="primary"
                         htmlType="submit"
                         style={{
-                            background: '#1890ff',
-                            borderColor: '#1890ff',
+                            // background: '#1890ff',
+                            // borderColor: '#1890ff',
+                            background: '#832729',
+                            borderColor: '#832729',
                             borderRadius: '4px',
                             width: '80px',
                         }}

@@ -1,7 +1,7 @@
 import React, { forwardRef, useState } from 'react'
 import { Form, Input, Upload, Card, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
-import { Button, Notification, hooks, toast } from 'components/ui'
+import { Button, hooks } from 'components/ui'
 import { getProducts } from '../CategoryList/store/dataSlice'
 import { useDispatch } from 'react-redux'
 
@@ -15,8 +15,8 @@ const CategoryForm = forwardRef((props, ref) => {
     const [loading, setLoading] = useState(false)
     const [fileList, setFileList] = useState([])
     const [imagePreview, setImagePreview] = useState('')
-    // const [imageUrl, setImageUrl] = useState(null)
     const dispatch = useDispatch()
+
     const onFinish = async (values) => {
         setLoading(true)
         try {
@@ -28,54 +28,13 @@ const CategoryForm = forwardRef((props, ref) => {
 
             const response = await onFormSubmit(formData)
 
-            if (
-                response &&
-                response.message === 'Category created successfully'
-            ) {
-                // toast.push(
-                //     <Notification
-                //         title={'Successfully added'}
-                //         type="success"
-                //         duration={2500}
-                //     >
-                //         Category added successfully
-                //     </Notification>,
-                //     {
-                //         placement: 'top-center',
-                //     }
-                // )
-            } else if (response && response.status === 400) {
-                // toast.push(
-                //     <Notification
-                //         title={'Failed to add category'}
-                //         type="danger"
-                //         duration={2500}
-                //     >
-                //         {response.data.message}
-                //     </Notification>,
-                //     {
-                //         placement: 'top-center',
-                //     }
-                // )
+            if (response?.message === 'Category created successfully') {
+                message.success('Category created successfully')
+            } else if (response?.status === 400) {
+                message.error('Failed to create category')
             }
-            // else if (response && response.status === 500) {
-            //     throw new Error('Internal Server Error')
-            // } else {
-            // throw new Error(response?.data?.message || 'Unknown error')
-            // }
         } catch (error) {
-            // toast.push(
-            //     <Notification
-            //         title={'Successfully added'}
-            //         type="success"
-            //         duration={2500}
-            //     >
-            //         Category added successfully
-            //     </Notification>,
-            //     {
-            //         placement: 'top-center',
-            //     }
-            // )
+            message.error('An error occurred')
         } finally {
             form.resetFields()
             setLoading(false)
@@ -86,14 +45,16 @@ const CategoryForm = forwardRef((props, ref) => {
     const handleUploadChange = (info) => {
         setFileList(info.fileList)
     }
+
     const uploadButton = (
         <div>
             <UploadOutlined />
             <div style={{ marginTop: 8 }}>Upload</div>
         </div>
     )
+
     const handlePreview = (file) => {
-        if (file.type && file.type.startsWith('image/')) {
+        if (file.type?.startsWith('image/')) {
             const reader = new FileReader()
             reader.onload = () => {
                 const imageUrl = reader.result
@@ -111,9 +72,9 @@ const CategoryForm = forwardRef((props, ref) => {
     }
 
     return (
-        <div className="flex items-center">
-            <Card className="w-full max-w-md p-8">
-                <Form form={form} onFinish={onFinish}>
+        <div className="flex justify-center items-center">
+            <Card className="w-full max-w-md p-8 rounded-lg">
+                <Form form={form} onFinish={onFinish} layout="vertical">
                     <Form.Item
                         name="category_name"
                         label="Category Name"
@@ -123,7 +84,6 @@ const CategoryForm = forwardRef((props, ref) => {
                                 message: 'Please enter category name',
                             },
                         ]}
-                        className="mb-4"
                     >
                         <Input className="w-full" />
                     </Form.Item>
@@ -158,13 +118,20 @@ const CategoryForm = forwardRef((props, ref) => {
                         </Upload>
                     </Form.Item>
 
-                    <Button
-                        htmltype="submit"
-                        loading={loading}
-                        style={{ backgroundColor: 'blue', color: 'white' }}
-                    >
-                        Submit
-                    </Button>
+                    <Form.Item>
+                        <div className="flex justify-end">
+                            <Button
+                                htmlType="submit"
+                                loading={loading}
+                                style={{
+                                    backgroundColor: '#832729',
+                                    color: 'white',
+                                }}
+                            >
+                                Submit
+                            </Button>
+                        </div>
+                    </Form.Item>
                 </Form>
             </Card>
         </div>

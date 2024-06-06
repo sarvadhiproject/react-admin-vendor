@@ -24,7 +24,7 @@ const ProductTableTools = () => {
                     block
                     variant="solid"
                     size="sm"
-                    //  style={{ backgroundColor: '#022B4E' }}
+                    style={{ backgroundColor: '#832729' }}
                     icon={<HiPlusCircle />}
                 >
                     Add Category
