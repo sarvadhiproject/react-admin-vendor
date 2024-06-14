@@ -77,6 +77,7 @@ const SignInForm = (props) => {
                         <FormContainer>
                             <FormItem
                                 label="Email"
+                                style={{ color: '#832729' }}
                                 invalid={errors.email && touched.email}
                                 errorMessage={errors.email}
                             >
@@ -90,6 +91,7 @@ const SignInForm = (props) => {
                             </FormItem>
                             <FormItem
                                 label="Password"
+                                style={{ color: '#832729' }}
                                 invalid={errors.password && touched.password}
                                 errorMessage={errors.password}
                             >
@@ -104,6 +106,7 @@ const SignInForm = (props) => {
                             <Button
                                 block
                                 loading={isSubmitting}
+                                style={{ backgroundColor: '#832729' }}
                                 variant="solid"
                                 type="submit"
                             >
@@ -111,7 +114,12 @@ const SignInForm = (props) => {
                             </Button>
                             <div className="mt-4 text-center">
                                 <span>Don't have an account yet? </span>
-                                <ActionLink to={signUpUrl}>Sign up</ActionLink>
+                                <ActionLink
+                                    to={signUpUrl}
+                                    style={{ color: '#832729' }}
+                                >
+                                    Sign up
+                                </ActionLink>
                             </div>
                         </FormContainer>
                     </Form>

@@ -120,7 +120,8 @@ const KycDetails = () => {
                 <Spin
                     indicator={<LoadingOutlined size={28} />}
                     size="large"
-                    style={{ color: '#4F46E5' }}
+                    // style={{ color: '#4F46E5' }}
+                    style={{ color: '#832729' }}
                 />
             </div>
         )
@@ -199,7 +200,8 @@ const KycDetails = () => {
                                 <UserAddOutlined
                                     style={{
                                         fontSize: '20px',
-                                        color: '#4F46E5',
+                                        // color: '#4F46E5',
+                                        color: '#832729',
                                     }}
                                 />
                                 <Title level={5}>Personal Details</Title>
@@ -250,7 +252,7 @@ const KycDetails = () => {
                                 <BuildOutlined
                                     style={{
                                         fontSize: '20px',
-                                        color: '#4F46E5',
+                                        color: '#832729',
                                     }}
                                 />
                                 <Title level={5}>Company Details</Title>
@@ -287,7 +289,7 @@ const KycDetails = () => {
                                 <FileTextOutlined
                                     style={{
                                         fontSize: '20px',
-                                        color: '#4F46E5',
+                                        color: '#832729',
                                     }}
                                 />
                                 <Title level={5}>KYC Documents</Title>
@@ -351,7 +353,7 @@ const KycDetails = () => {
                                 <BankFilled
                                     style={{
                                         fontSize: '20px',
-                                        color: '#4F46E5',
+                                        color: '#832729',
                                     }}
                                 />
                                 <Title level={5}>Bank Details</Title>

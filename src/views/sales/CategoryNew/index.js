@@ -53,7 +53,7 @@ const CategoryNew = ({ onClose }) => {
                         type="danger"
                         duration={2500}
                     >
-                        {response.message}
+                        {response.message} - Please try again later
                     </Notification>,
                     {
                         placement: 'top-center',
@@ -82,7 +82,7 @@ const CategoryNew = ({ onClose }) => {
                     type="danger"
                     duration={2500}
                 >
-                    {error.message}
+                    {error.message} - Please try again later
                 </Notification>,
                 {
                     placement: 'top-center',

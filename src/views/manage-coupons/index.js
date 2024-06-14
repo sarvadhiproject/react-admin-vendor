@@ -21,7 +21,6 @@ import NumberFormat from 'react-number-format'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import moment from 'moment'
-import Cookies from 'js-cookie'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -48,16 +47,14 @@ const Coupons = () => {
                 `${appConfig.apiPrefix}/coupon/vendor/${vendorID}`
             )
             setCoupons(response.data)
-            Cookies.set('totalVendorCoupons', response.data.length)
         } catch (error) {
-            // message.error('Failed to fetch coupons')
             toast.push(
                 <Notification
                     title={'Failed to fetch coupons'}
                     type="danger"
                     duration={2500}
                 >
-                    {error}
+                    {error?.message}- Please try again later
                 </Notification>,
                 {
                     placement: 'top-center',
@@ -81,7 +78,6 @@ const Coupons = () => {
                         vendor_id: vendorID,
                     }
                 )
-                // message.success('Coupon updated successfully')
                 toast.push(
                     <Notification
                         title={'Successfully updated'}
@@ -99,7 +95,6 @@ const Coupons = () => {
                     ...values,
                     vendor_id: vendorID,
                 })
-                // message.success('Coupon added successfully')
                 toast.push(
                     <Notification
                         title={'Successfully added'}
@@ -123,7 +118,6 @@ const Coupons = () => {
                 error.response.data &&
                 error.response.data.message === 'Coupon code already exists'
             ) {
-                // message.error('Coupon code already exists')
                 toast.push(
                     <Notification
                         title={'Failed to save coupon'}
@@ -137,7 +131,6 @@ const Coupons = () => {
                     }
                 )
             } else {
-                // message.error('Failed to save coupon')
                 toast.push(
                     <Notification
                         title={'Failed to save coupon'}
@@ -166,7 +159,6 @@ const Coupons = () => {
                     await axios.delete(
                         `${appConfig.apiPrefix}/coupon/${couponId}`
                     )
-                    // message.success('Coupon deleted successfully')
                     toast.push(
                         <Notification
                             title={'Successfully deleted'}
@@ -181,7 +173,6 @@ const Coupons = () => {
                     )
                     fetchCoupons()
                 } catch (error) {
-                    // message.error('Failed to delete coupon')
                     toast.push(
                         <Notification
                             title={'Failed to delete coupon'}
@@ -344,11 +335,21 @@ const Coupons = () => {
                 </div>
             </div>
             {!isLoading && filteredCoupons.length === 0 ? (
-                <Empty description="No coupon found!" />
+                searchQuery ? (
+                    <Empty
+                        description={`No coupon found for "${searchQuery}"`}
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                ) : (
+                    <Empty description="No coupons available" />
+                )
             ) : isLoading ? (
                 <Spin
                     indicator={
-                        <LoadingOutlined style={{ fontSize: 24 }} spin />
+                        <LoadingOutlined
+                            style={{ fontSize: 28, color: '#832729' }}
+                            spin
+                        />
                     }
                 />
             ) : (
@@ -365,7 +366,11 @@ const Coupons = () => {
             )}
 
             <Modal
-                title={editingCoupon ? 'Edit Coupon' : 'Add Coupon'}
+                title={
+                    <h5 style={{ color: '#832729' }}>
+                        {editingCoupon ? 'Edit Coupon' : 'Add Coupon'}
+                    </h5>
+                }
                 visible={isAddCouponOpen}
                 onCancel={() => {
                     setIsAddCouponOpen(false)

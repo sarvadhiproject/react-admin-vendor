@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
-import { Table, Input, Empty } from 'antd'
+import { Table, Input, Empty, Spin } from 'antd'
 import appConfig from 'configs/app.config'
-import Cookies from 'js-cookie'
+import { Notification, toast } from 'components/ui'
+import { LoadingOutlined } from '@ant-design/icons'
 
 function AllCustomers() {
     const [customers, setCustomers] = useState([])
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [pageSize, setPageSize] = useState(10)
     const [currentPage, setCurrentPage] = useState(1)
@@ -19,11 +19,21 @@ function AllCustomers() {
                     `${appConfig.apiPrefix}/customer/admin`
                 )
                 setCustomers(response?.data?.data || [])
-                Cookies.set('totalCustomers', response?.data?.data.length)
                 // console.log(response?.data?.data.length)
-                setLoading(false)
             } catch (err) {
-                setError(err?.message)
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch customers'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {err?.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            } finally {
                 setLoading(false)
             }
         }
@@ -75,7 +85,7 @@ function AllCustomers() {
         {
             title: 'Registration Date/Time',
             dataIndex: 'createdAt',
-            render: (text, record) => (
+            render: (text) => (
                 <span style={{ color: '#666' }}>
                     {new Date(text).toLocaleString('en-GB')}
                 </span>
@@ -84,32 +94,29 @@ function AllCustomers() {
         },
     ]
 
-    const filteredCustomers = customers.filter(
-        (customer) =>
-            customer.first_name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            customer.last_name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            customer.phone_no.includes(searchQuery)
-    )
+    const filteredCustomers = useMemo(() => {
+        return customers.filter(
+            (customer) =>
+                customer.first_name
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                customer.last_name
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                customer.email
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                customer.phone_no?.includes(searchQuery)
+        )
+    }, [customers, searchQuery])
 
     const indexStart = useMemo(() => {
         return (currentPage - 1) * pageSize
     }, [currentPage, pageSize])
+
     const handlePageSizeChange = (current, size) => {
         setPageSize(Number(size))
         setCurrentPage(1) // Reset to the first page when page size changes
-    }
-
-    if (loading) {
-        return <div>Loading...</div>
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>
     }
 
     return (
@@ -134,30 +141,44 @@ function AllCustomers() {
                     />
                 </div>
             </div>
-            {filteredCustomers.length > 0 ? (
+            {loading ? (
+                <Spin
+                    indicator={
+                        <LoadingOutlined
+                            style={{ fontSize: 28, color: '#832729' }}
+                            spin
+                        />
+                    }
+                />
+            ) : filteredCustomers.length > 0 ? (
                 <Table
                     dataSource={filteredCustomers}
                     style={{ overflowX: 'auto', overflowY: 'auto' }}
                     columns={columns}
                     rowKey="user_id"
-                    // pagination={{
-                    //     position: ['bottomLeft', 'bottomRight'],
-                    //     current: currentPage,
-                    //     onChange: (page) => setCurrentPage(page),
-                    //     pageSize: pageSize,
-                    //     pageSizeOptions: ['5', '10', '20', '50'],
-                    //     onShowSizeChange: handlePageSizeChange,
-                    //     showSizeChanger: true,
-                    //     showQuickJumper: true,
-                    //     showTotal: (total, range) =>
-                    //         `${range[0]}-${range[1]} of ${total} items`,
-                    // }}
+                    pagination={{
+                        position: ['bottomRight'],
+                        current: currentPage,
+                        onChange: (page) => setCurrentPage(page),
+                        pageSize: pageSize,
+                        pageSizeOptions: ['5', '10', '20', '50'],
+                        onShowSizeChange: handlePageSizeChange,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} of ${total} items`,
+                    }}
                 />
-            ) : (
-                // </TableContainer>
+            ) : searchQuery ? (
                 <Empty
                     style={{ fontWeight: '350' }}
-                    description="No products found!"
+                    description={`No customers found for "${searchQuery}"`}
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+            ) : (
+                <Empty
+                    style={{ fontWeight: '350' }}
+                    description="No customers available"
                 />
             )}
         </>

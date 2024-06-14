@@ -141,10 +141,12 @@ const Profile = ({ data }) => {
                         <FormContainer>
                             <FormDesription
                                 title="General"
+                                style={{ color: '#832729' }}
                                 desc="Basic info, like your name and address that will displayed in public"
                             />
                             <FormRow
                                 name="name"
+                                style={{ color: '#832729' }}
                                 label="Name"
                                 {...validatorProps}
                             >
@@ -161,6 +163,7 @@ const Profile = ({ data }) => {
                             </FormRow>
                             <FormRow
                                 name="email"
+                                style={{ color: '#832729' }}
                                 label="Email"
                                 {...validatorProps}
                             >
@@ -177,6 +180,7 @@ const Profile = ({ data }) => {
                             </FormRow>
                             <FormRow
                                 name="avatar"
+                                style={{ color: '#832729' }}
                                 label="Avatar"
                                 {...validatorProps}
                             >
@@ -317,6 +321,7 @@ const Profile = ({ data }) => {
                                     <Button
                                         variant="solid"
                                         loading={isSubmitting}
+                                        style={{ backgroundColor: '#832729' }}
                                         type="submit"
                                     >
                                         {isSubmitting ? 'Updating' : 'Update'}

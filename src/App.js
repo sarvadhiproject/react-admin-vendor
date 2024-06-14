@@ -9,7 +9,12 @@ import history from './history'
 import mockServer from './mock'
 import appConfig from 'configs/app.config'
 import './locales'
+import axios from 'axios'
 
+axios.interceptors.request.use((config) => {
+    config.headers['ngrok-skip-browser-warning'] = 'true'
+    return config
+})
 const environment = process.env.NODE_ENV
 
 // if (appConfig.enableMock) {

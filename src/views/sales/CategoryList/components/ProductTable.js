@@ -4,7 +4,6 @@ import { HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getProducts } from '../store/dataSlice'
 import axios from 'axios'
-import Cookies from 'js-cookie' // Add this line to import cookies
 
 import {
     Table,
@@ -16,9 +15,11 @@ import {
     Upload,
     Tooltip,
     Card,
+    Spin,
+    Empty,
 } from 'antd'
 import appConfig from 'configs/app.config'
-import { UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined, LoadingOutlined } from '@ant-design/icons'
 
 const normFile = (e) => {
     if (Array.isArray(e)) {
@@ -50,6 +51,7 @@ const ProductTable = () => {
     const [form] = Form.useForm()
     const [imageUrl, setImageUrl] = useState(null)
     const [fileList, setFileList] = useState([])
+    const [isLoading, setIsLoading] = useState(false) // Add this line
 
     const dispatch = useDispatch()
     const data = useSelector((state) => state.salesProductList.data.productList)
@@ -57,13 +59,6 @@ const ProductTable = () => {
     useEffect(() => {
         dispatch(getProducts())
     }, [dispatch])
-
-    useEffect(() => {
-        if (data && data.length) {
-            // Store the total number of categories in cookies
-            Cookies.set('totalCategories', data.length)
-        }
-    }, [data])
 
     const handleChange = (info) => {
         if (info.file.status === 'uploading') {
@@ -97,6 +92,7 @@ const ProductTable = () => {
 
     const handleEditSubmit = async (values) => {
         try {
+            setIsLoading(true) // Set isLoading to true before making the API call
             const formData = new FormData()
             formData.append('category_name', values.category_name)
             formData.append(
@@ -131,13 +127,14 @@ const ProductTable = () => {
                     type="danger"
                     duration={2500}
                 >
-                    {error.message}
+                    {error.message} - Please try again later
                 </Notification>,
                 {
                     placement: 'top-center',
                 }
             )
         } finally {
+            setIsLoading(false) // Set isLoading to false after the API call is completed
             setShowEditModal(false)
         }
     }
@@ -189,7 +186,7 @@ const ProductTable = () => {
                         className="action-icon"
                         onClick={() => handleEdit(record)}
                     >
-                        <Tooltip title="Edit Category">
+                        <Tooltip title="Update Category">
                             <HiOutlinePencil
                                 size={18}
                                 style={{
@@ -218,7 +215,7 @@ const ProductTable = () => {
     ]
 
     const handleDelete = (record) => {
-        console.log('Delete:', record)
+        // console.log('Delete:', record)
         setDeleteCategoryId(record.category_id)
         setShowConfirmation(true)
     }
@@ -266,7 +263,7 @@ const ProductTable = () => {
     return (
         <>
             <Modal
-                title="Edit Category"
+                title={<h5 style={{ color: '#832729' }}>Update Category</h5>}
                 open={showEditModal}
                 onCancel={() => setShowEditModal(false)}
                 footer={[
@@ -277,15 +274,33 @@ const ProductTable = () => {
                     >
                         Cancel
                     </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        onClick={() => form.submit()}
-                        // style={{ backgroundColor: 'blue', color: 'white' }}
-                        style={{ backgroundColor: '#832729', color: 'white' }}
-                    >
-                        Save
-                    </Button>,
+                    isLoading ? ( // Conditionally render the button based on isLoading
+                        <Button
+                            key="submit"
+                            type="primary"
+                            disabled
+                            loading
+                            // style={{ backgroundColor: '#022B4E' }}
+                            style={{
+                                backgroundColor: '#832729',
+                                color: 'white',
+                            }}
+                        >
+                            Updating
+                        </Button>
+                    ) : (
+                        <Button
+                            key="submit"
+                            type="primary"
+                            onClick={() => form.submit()}
+                            style={{
+                                backgroundColor: '#832729',
+                                color: 'white',
+                            }}
+                        >
+                            Update
+                        </Button>
+                    ),
                 ]}
             >
                 <Card className="w-full max-w-md p-8">
@@ -353,19 +368,33 @@ const ProductTable = () => {
                     action cannot be undone.
                 </p>
             </Modal>
-
-            <Table
-                // bordered={true}
-                // style={{marginRight:'20px'}}
-                rowKey="category_id"
-                size="small"
-                columns={columns}
-                dataSource={data}
-                pagination={{
-                    current: currentPage,
-                    onChange: (page) => setCurrentPage(page),
-                }}
-            />
+            {isLoading ? (
+                <center>
+                    <Spin
+                        indicator={
+                            <LoadingOutlined
+                                style={{ fontSize: 28, color: '#832729' }}
+                                spin
+                            />
+                        }
+                    />
+                </center>
+            ) : data.length > 0 ? (
+                <Table
+                    // bordered={true}
+                    // style={{marginRight:'20px'}}
+                    rowKey="category_id"
+                    size="small"
+                    columns={columns}
+                    dataSource={data}
+                    pagination={{
+                        current: currentPage,
+                        onChange: (page) => setCurrentPage(page),
+                    }}
+                />
+            ) : (
+                <Empty description="No categories found!" />
+            )}
         </>
     )
 }

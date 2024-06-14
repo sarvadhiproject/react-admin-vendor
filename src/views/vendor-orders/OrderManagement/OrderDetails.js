@@ -89,7 +89,7 @@ const OrderDetails = () => {
     const handleUpdateStatus = async () => {
         try {
             setIsUpdating(true)
-            const newStatus = status === 5 ? 5 : status + 1 // If status is "Delivered" (5), keep it the same, otherwise increment it
+            const newStatus = orderStatus.vendor_status + 1 // If status is "Delivered" (5), keep it the same, otherwise increment it
             const headers = {
                 headers: {
                     Authorization: `Bearer ${token1}`,
@@ -116,7 +116,7 @@ const OrderDetails = () => {
             setIsUpdating(false)
         }
     }
-    const getNextStatusText = () => {
+    const getNextStatusText = (status) => {
         switch (status) {
             case 1:
                 return 'Update to Processing'
@@ -153,7 +153,7 @@ const OrderDetails = () => {
         return <div>Loading...</div>
     }
     if (loading) {
-        return <LoadingOutlined spin />
+        return <LoadingOutlined spin style={{ size: '28', color: '#832729' }} />
     }
 
     if (error) {
@@ -250,7 +250,7 @@ const OrderDetails = () => {
             ),
         },
         {
-            title: 'Amount With GST',
+            title: 'Total Amount (Incl. GST)',
             dataIndex: 'total_price',
             render: (total_price) => (
                 <NumberFormat
@@ -652,7 +652,7 @@ const OrderDetails = () => {
                         </Card>
                     </div>
                 </div>
-                <Card
+                {/* <Card
                     title={
                         <Space>
                             <TruckOutlined />
@@ -804,6 +804,156 @@ const OrderDetails = () => {
                                     : getNextStatusText()}
                             </Button>
                         )}
+                </Card> */}
+                <Card
+                    title={
+                        <Space>
+                            <TruckOutlined />
+                            <Title
+                                level={4}
+                                style={{ margin: 0, color: '#832729' }}
+                            >
+                                Tracking Info
+                            </Title>
+                        </Space>
+                    }
+                    style={{
+                        width: '100%',
+                        boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+                    }}
+                    headStyle={{ color: '#832729' }}
+                >
+                    {orderStatus && (
+                        <Steps
+                            direction="vertical"
+                            style={{ marginBottom: '20px' }}
+                            current={orderStatus.vendor_status - 1}
+                        >
+                            <Step
+                                title="Order Received"
+                                description={
+                                    orderStatus.order_received ? (
+                                        <span style={{ color: '#666' }}>
+                                            {new Date(
+                                                orderStatus.order_received
+                                            ).toLocaleString('en-GB', {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                hour12: true,
+                                            })}
+                                        </span>
+                                    ) : null
+                                }
+                                icon={<UserOutlined />}
+                            />
+                            <Step
+                                title="Processing"
+                                description={
+                                    orderStatus.processing ? (
+                                        <span style={{ color: '#666' }}>
+                                            {new Date(
+                                                orderStatus.processing
+                                            ).toLocaleString('en-GB', {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                hour12: true,
+                                            })}
+                                        </span>
+                                    ) : null
+                                }
+                                icon={<SyncOutlined />}
+                            />
+                            <Step
+                                title="Shipped"
+                                description={
+                                    orderStatus.shipped ? (
+                                        <span style={{ color: '#666' }}>
+                                            {new Date(
+                                                orderStatus.shipped
+                                            ).toLocaleString('en-GB', {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                hour12: true,
+                                            })}
+                                        </span>
+                                    ) : null
+                                }
+                                icon={<TruckOutlined />}
+                            />
+                            <Step
+                                title="Out for Delivery"
+                                description={
+                                    orderStatus.out_for_delivery ? (
+                                        <span style={{ color: '#666' }}>
+                                            {new Date(
+                                                orderStatus.out_for_delivery
+                                            ).toLocaleString('en-GB', {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                hour12: true,
+                                            })}
+                                        </span>
+                                    ) : null
+                                }
+                                icon={<EnvironmentOutlined />}
+                            />
+                            <Step
+                                title="Delivered"
+                                description={
+                                    orderStatus.delivered ? (
+                                        <span style={{ color: '#666' }}>
+                                            {new Date(
+                                                orderStatus.delivered
+                                            ).toLocaleString('en-GB', {
+                                                weekday: 'short',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric',
+                                                hour: 'numeric',
+                                                minute: 'numeric',
+                                                hour12: true,
+                                            })}
+                                        </span>
+                                    ) : null
+                                }
+                                icon={<CheckCircleOutlined />}
+                            />
+                        </Steps>
+                    )}
+                    {orderStatus &&
+                        orderStatus.vendor_status !== 3 &&
+                        orderStatus.vendor_status !== 4 &&
+                        orderStatus.vendor_status !== 5 && (
+                            <Button
+                                style={{ marginTop: '18px' }}
+                                varient="solid"
+                                size="sm"
+                                onClick={handleUpdateStatus}
+                                disabled={isUpdating}
+                            >
+                                {isUpdating
+                                    ? 'Updating...'
+                                    : getNextStatusText(
+                                          orderStatus.vendor_status
+                                      )}
+                            </Button>
+                        )}
                 </Card>
                 <div style={{ marginTop: '18px' }}>
                     <Button
@@ -821,7 +971,6 @@ const OrderDetails = () => {
 }
 
 export default OrderDetails
-
 
 //before color change
 // import React, { useState, useEffect } from 'react'
@@ -1647,4 +1796,3 @@ export default OrderDetails
 // }
 
 // export default OrderDetails
-

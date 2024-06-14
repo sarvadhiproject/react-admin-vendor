@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
-import { Table, Input, Empty } from 'antd'
+import { Table, Input, Empty, Spin } from 'antd'
 import appConfig from 'configs/app.config'
-import Cookies from 'js-cookie'
 import { jwtDecode } from 'jwt-decode'
+import { Notification, toast } from 'components/ui'
+import { LoadingOutlined } from '@ant-design/icons'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -12,7 +13,6 @@ var vendor_id = decodedToken.id
 const Customers = () => {
     const [customers, setCustomers] = useState([])
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [pageSize, setPageSize] = useState(10)
     const [currentPage, setCurrentPage] = useState(1)
@@ -24,11 +24,21 @@ const Customers = () => {
                     `${appConfig.apiPrefix}/customer/${vendor_id}`
                 )
                 setCustomers(response?.data || [])
-                Cookies.set('totalVendorCustomers', response?.data.length)
                 // console.log(response?.data?.data.length)
-                setLoading(false)
             } catch (err) {
-                setError(err?.message)
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch customers'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {err?.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            } finally {
                 setLoading(false)
             }
         }
@@ -89,32 +99,29 @@ const Customers = () => {
         },
     ]
 
-    const filteredCustomers = customers.filter(
-        (customer) =>
-            customer.first_name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            customer.last_name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            customer.phone_no.includes(searchQuery)
-    )
+    const filteredCustomers = useMemo(() => {
+        return customers.filter(
+            (customer) =>
+                customer.first_name
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                customer.last_name
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                customer.email
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                customer.phone_no?.includes(searchQuery)
+        )
+    }, [customers, searchQuery])
 
     const indexStart = useMemo(() => {
         return (currentPage - 1) * pageSize
     }, [currentPage, pageSize])
+
     const handlePageSizeChange = (current, size) => {
         setPageSize(Number(size))
         setCurrentPage(1) // Reset to the first page when page size changes
-    }
-
-    if (loading) {
-        return <div>Loading...</div>
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>
     }
 
     return (
@@ -139,7 +146,16 @@ const Customers = () => {
                     />
                 </div>
             </div>
-            {filteredCustomers.length > 0 ? (
+            {loading ? (
+                <Spin
+                    indicator={
+                        <LoadingOutlined
+                            style={{ fontSize: 28, color: '#832729' }}
+                            spin
+                        />
+                    }
+                />
+            ) : filteredCustomers.length > 0 ? (
                 <Table
                     dataSource={filteredCustomers}
                     style={{ overflowX: 'auto', overflowY: 'auto' }}
@@ -158,11 +174,16 @@ const Customers = () => {
                     //         `${range[0]}-${range[1]} of ${total} items`,
                     // }}
                 />
-            ) : (
-                // </TableContainer>
+            ) : searchQuery ? (
                 <Empty
                     style={{ fontWeight: '350' }}
-                    description="No products found!"
+                    description={`No customers found for "${searchQuery}"`}
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+            ) : (
+                <Empty
+                    style={{ fontWeight: '350' }}
+                    description="No customers found!"
                 />
             )}
         </>

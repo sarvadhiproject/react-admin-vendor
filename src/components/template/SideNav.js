@@ -17,6 +17,7 @@ import VerticalMenuContent from 'components/template/VerticalMenuContent'
 import useResponsive from 'utils/hooks/useResponsive'
 import { useSelector } from 'react-redux'
 import './side-nav-color.css'
+import { Link } from 'react-router-dom'
 
 const sideNavStyle = {
     width: SIDE_NAV_WIDTH,
@@ -103,16 +104,25 @@ const SideNav = () => {
                         !sideNavCollapse && 'side-nav-expand'
                     )}
                 >
-                    <div className="side-nav-header">
-                        <Logo
-                            mode={logoMode()}
-                            type={sideNavCollapse ? 'streamline' : 'full'}
-                            gutter={
-                                sideNavCollapse
-                                    ? SIDE_NAV_CONTENT_GUTTER
-                                    : LOGO_X_GUTTER
-                            }
-                        />
+                    <div
+                        className="side-nav-header"
+                        style={
+                            sideNavCollapse
+                                ? { marginTop: '10px', marginBottom: '10px' }
+                                : {}
+                        }
+                    >
+                        <Link to="app/sales/dashboard">
+                            <Logo
+                                mode={logoMode()}
+                                type={sideNavCollapse ? 'streamline' : 'full'}
+                                gutter={
+                                    sideNavCollapse
+                                        ? SIDE_NAV_CONTENT_GUTTER
+                                        : LOGO_X_GUTTER
+                                }
+                            />
+                        </Link>
                     </div>
                     {sideNavCollapse ? (
                         menuContent

@@ -92,6 +92,12 @@ const appsRoute = [
         authority: [ADMIN],
     },
     {
+        key: 'apps.websiteReviews',
+        path: `${APP_PREFIX_PATH}/website-reviews`,
+        component: React.lazy(() => import('views/website-reviews/')),
+        authority: [ADMIN],
+    },
+    {
         key: 'apps.vendorManagement',
         path: `${APP_PREFIX_PATH}/vendor-management/kyc-details`,
         component: React.lazy(() =>

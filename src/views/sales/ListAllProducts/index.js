@@ -1,30 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import {
-    Table,
-    Modal,
-    Popconfirm,
-    message,
-    Row,
-    Col,
-    Button,
-    Tooltip,
-    Input,
-    Empty,
-} from 'antd'
+import { Table, Modal, Row, Col, Tooltip, Input, Empty, Spin } from 'antd'
 import {
     InfoCircleTwoTone,
     LeftOutlined,
     StopOutlined,
     RightOutlined,
+    LoadingOutlined,
 } from '@ant-design/icons'
 import appConfig from 'configs/app.config'
 import axios from 'axios'
-import { HiOutlineTrash } from 'react-icons/hi'
-import { Spin } from 'antd'
 import { Notification, toast } from 'components/ui'
 import NumberFormat from 'react-number-format'
 import styled from 'styled-components'
-import Cookies from 'js-cookie'
 
 const TableContainer = styled.div`
     padding: 20px;
@@ -34,6 +21,7 @@ const TableContainer = styled.div`
 `
 
 const ProductList = () => {
+    const [isLoading, setIsLoading] = useState(true)
     const [currentPage, setCurrentPage] = useState(1)
     const [products, setProducts] = useState([])
     const [categories, setCategories] = useState({})
@@ -53,12 +41,26 @@ const ProductList = () => {
             .then((response) => {
                 if (response.data.data) {
                     setProducts(response.data.data)
-                    Cookies.set('totalProducts', response.data.data.length)
                 } else {
                     console.error('Invalid response format:', response.data)
                 }
             })
-            .catch((error) => console.error('Error fetching products:', error))
+            .catch((error) => {
+                console.error('Error fetching products:', error)
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch products'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {error.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            })
+            .finally(() => setIsLoading(false))
 
         axios
             .get(`${appConfig.apiPrefix}/categories/get-categories`)
@@ -69,9 +71,21 @@ const ProductList = () => {
                 })
                 setCategories(categoriesMap)
             })
-            .catch((error) =>
+            .catch((error) => {
                 console.error('Error fetching categories:', error)
-            )
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch categories'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {error.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            })
 
         axios
             .get(`${appConfig.apiPrefix}/vendor/active`)
@@ -96,6 +110,18 @@ const ProductList = () => {
             })
             .catch((error) => {
                 console.error('Error fetching active vendors:', error)
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch active vendors'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {error.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
             })
     }, [])
 
@@ -103,19 +129,36 @@ const ProductList = () => {
         setSelectedProduct(product)
         setIsModalOpen(true)
     }
+
     const fetchProducts = () => {
+        setIsLoading(true)
         axios
             .get(`${appConfig.apiPrefix}/products`)
             .then((response) => {
                 if (Array.isArray(response.data.data)) {
                     setProducts(response.data.data)
-                    Cookies.set('totalProducts', response.data.data.length)
                 } else {
                     console.error('Invalid response format:', response.data)
                 }
             })
-            .catch((error) => console.error('Error:', error))
+            .catch((error) => {
+                console.error('Error:', error)
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch products'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {error.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            })
+            .finally(() => setIsLoading(false))
     }
+
     const filteredProducts = useMemo(() => {
         if (!Array.isArray(products)) {
             return []
@@ -130,10 +173,12 @@ const ProductList = () => {
                 product.product_name.toLowerCase().includes(lowercaseQuery)
         )
     }, [products, searchQuery, vendors])
+
     const handleDelete = (record) => {
         setProductToDelete(record.product_id)
         setShowConfirmModal(true)
     }
+
     const handlePageSizeChange = (current, size) => {
         setPageSize(Number(size))
         setCurrentPage(1) // Reset to the first page when page size changes
@@ -175,7 +220,7 @@ const ProductList = () => {
                         type="danger"
                         duration={2500}
                     >
-                        {error.message}
+                        {error.message} - Please try again later
                     </Notification>,
                     {
                         placement: 'top-center',
@@ -200,6 +245,7 @@ const ProductList = () => {
                 : prevIndex + 1
         )
     }
+
     const indexStart = useMemo(() => {
         return (currentPage - 1) * pageSize
     }, [currentPage, pageSize])
@@ -307,22 +353,6 @@ const ProductList = () => {
                 />
             ),
         },
-        // {
-        //     title: 'Stock Quantity',
-        //     dataIndex: 'stock_quantity',
-        //     key: 'stock_quantity',
-        //     sorter: (a, b) => a.stock_quantity - b.stock_quantity,
-        //     render: (value) => (
-        //         <span
-        //             style={{
-        //                 color: value <= 3 ? 'red' : 'green',
-        //                 fontWeight: '600',
-        //             }}
-        //         >
-        //             {value}
-        //         </span>
-        //     ),
-        // },
         {
             title: 'Action',
             key: 'action',
@@ -334,16 +364,7 @@ const ProductList = () => {
                             style={{ marginRight: '20px' }}
                         />
                     </Tooltip>
-                    {/* <Popconfirm
-                        title="Are you sure you want to delete this product?"
-                        onConfirm={() => handleDelete(record.product_id)}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <HiOutlineTrash
-                            style={{ color: 'red', fontSize: '18px' }}
-                        />
-                    </Popconfirm> */}
+
                     <Tooltip title="Deactivate product">
                         <StopOutlined
                             style={{ color: 'red' }}
@@ -377,34 +398,32 @@ const ProductList = () => {
                     />
                 </div>
             </div>
-            {filteredProducts.length > 0 ? (
-                // <TableContainer>
+            {isLoading ? (
+                <Spin
+                    indicator={
+                        <LoadingOutlined
+                            style={{ fontSize: 28, color: '#832729' }}
+                            spin
+                        />
+                    }
+                />
+            ) : filteredProducts.length > 0 ? (
                 <Table
                     dataSource={filteredProducts}
-                    style={{ overflowX: 'auto', overflowY: 'auto' }}
                     columns={columns}
-                    pagination={{
-                        position: ['bottomLeft', 'bottomRight'],
-                        current: currentPage,
-                        onChange: (page) => setCurrentPage(page),
-                        pageSize: pageSize,
-                        pageSizeOptions: ['5', '10', '20', '50'],
-                        onShowSizeChange: handlePageSizeChange,
-                        showSizeChanger: true,
-                        showQuickJumper: true,
-                        showTotal: (total, range) =>
-                            `${range[0]}-${range[1]} of ${total} items`,
-                    }}
                     rowKey="product_id"
                     size="small"
-                    // bordered={true}
+                    pagination={{
+                        current: currentPage,
+                        onChange: (page) => setCurrentPage(page),
+                    }}
                 />
+            ) : products.length === 0 ? (
+                <Empty description="">No products found!</Empty>
             ) : (
-                // </TableContainer>
-                <Empty
-                    style={{ fontWeight: '350' }}
-                    description="No products found!"
-                />
+                <Empty description="" image={Empty.PRESENTED_IMAGE_SIMPLE}>
+                    No product found for '{searchQuery}'
+                </Empty>
             )}
             <Modal
                 title={<h4>Confirm Deactivation</h4>}
@@ -425,12 +444,12 @@ const ProductList = () => {
             >
                 <p>
                     Are you sure you want to deactivate this product? The
-                    product will no longer visible to users. This action cannot
-                    be undone.
+                    product will no longer be visible to users. This action
+                    cannot be undone.
                 </p>
             </Modal>
             <Modal
-                title={<h4>Product Details</h4>}
+                title={<h4 style={{ color: '#832729' }}>Product Details</h4>}
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
@@ -486,12 +505,6 @@ const ProductList = () => {
                                 </span>
                                 {selectedProduct.product_name}
                             </p>
-                            {/* <p>
-                                <span style={{ fontWeight: '600' }}>
-                                    Description :{' '}
-                                </span>
-                                {selectedProduct.basic_description}
-                            </p> */}
                             <p>
                                 <span style={{ fontWeight: '600' }}>
                                     Category :
@@ -576,12 +589,6 @@ const ProductList = () => {
                                 </span>
                                 {selectedProduct.occasion_type}
                             </p>
-                            {/* <p>
-                                <span style={{ fontWeight: '600' }}>
-                                    Stock Quantity :{' '}
-                                </span>
-                                {selectedProduct.stock_quantity}
-                            </p> */}
                         </Col>
                     </Row>
                 )}
@@ -589,4 +596,5 @@ const ProductList = () => {
         </>
     )
 }
+
 export default ProductList

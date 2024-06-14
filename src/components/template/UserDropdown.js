@@ -12,12 +12,12 @@ import userImage from '../../assets/user.png'
 const dropdownItemList = [
     {
         label: 'Profile',
-        path: '/app/account/settings/profile',
+        path: '/app/account/settings/password',
         icon: <HiOutlineUser />,
     },
     {
         label: 'Account Setting',
-        path: '/app/account/settings/profile',
+        path: '/app/account/settings/password',
         icon: <HiOutlineCog />,
     },
     // {

@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Table, Tooltip, Input, Button } from 'antd'
+import { Table, Input, Button, Empty, Spin } from 'antd'
 import {
     EyeOutlined,
-    DeleteOutlined,
     ClockCircleOutlined,
     SyncOutlined,
     LoadingOutlined,
@@ -14,11 +13,11 @@ import NumberFormat from 'react-number-format'
 import moment from 'moment'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
-import { HiOutlineTrash, HiDownload } from 'react-icons/hi'
+import { HiDownload } from 'react-icons/hi'
 import { Link, useNavigate } from 'react-router-dom'
 import { CSVLink } from 'react-csv'
 import { jwtDecode } from 'jwt-decode'
-import Cookies from 'js-cookie'
+import { Notification, toast } from 'components/ui'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -41,17 +40,15 @@ const OrderManagement = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true)
             try {
-                setLoading(true)
                 const response = await axios.get(
                     `${appConfig.apiPrefix}/order/vendors/${vendor_id}/orders`
                 )
-                const ordersData = response.data.map((order) => ({
+                const ordersData = response?.data?.map((order) => ({
                     order_id: order.order_id,
-                    // orderItems: order.orderItems,
                     order_date: order.order_date,
-                    customer_name: `${order.user.first_name} ${order.user.last_name}`,
-                    // total_products: order.total_products,
+                    customer_name: `${order.user?.first_name} ${order.user?.last_name}`,
                     status: order.status,
                     payment_method: 'N/A', // Replace with actual payment method
                     total_amount: order.orderItems.reduce(
@@ -60,16 +57,49 @@ const OrderManagement = () => {
                     ),
                 }))
                 setData(ordersData)
-                Cookies.set('totalVendorOrders', response.data.length)
                 // console.log(response.data.length)
             } catch (error) {
-                console.error('Error fetching orders:', error)
+                // console.error('Error fetching orders:', error)
+                toast.push(
+                    <Notification
+                        title="Failed to fetch orders"
+                        type="danger"
+                        duration={2500}
+                    >
+                        {error?.message} - Please try again later
+                    </Notification>,
+                    { placement: 'top-center' }
+                )
             } finally {
                 setLoading(false)
             }
         }
         fetchData()
     }, [])
+
+    const handleGenerateInvoice = async (orderId) => {
+        try {
+            const response = await axios.get(
+                `${appConfig.apiPrefix}/invoice/${orderId}/${vendor_id}`
+            )
+            window.open(
+                `${appConfig.apiPrefix}/invoice/${orderId}/${vendor_id}`,
+                '_blank'
+            )
+        } catch (error) {
+            console.error('Error generating invoice:', error)
+            toast.push(
+                <Notification
+                    title="Failed to generate invoice"
+                    type="danger"
+                    duration={2500}
+                >
+                    {error?.message} - Please try again later
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        }
+    }
 
     const indexStart = useMemo(() => {
         return (currentPage - 1) * pageSize
@@ -209,6 +239,37 @@ const OrderManagement = () => {
             ),
         },
         {
+            title: 'Invoice',
+            key: 'invoice',
+            render: (_, record) => (
+                // <a
+                //     href="#"
+                //     onClick={(e) => {
+                //         e.preventDefault()
+                //         handleGenerateInvoice(record.order_id)
+                //     }}
+                //     style={{ color: '#832729', textDecoration: 'underline' }}
+                // >
+                //     Invoice
+                // </a>
+                <button
+                    style={{
+                        border: 'none',
+                        color: '#832729',
+                        borderBottom: '1px solid #832729',
+                        paddingBottom: '0px',
+                        fontWeight: '600',
+                    }}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        handleGenerateInvoice(record.order_id)
+                    }}
+                >
+                    Invoice
+                </button>
+            ),
+        },
+        {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
@@ -260,7 +321,7 @@ const OrderManagement = () => {
                             data={data}
                             filename="orders.csv"
                             className="ant-btn ant-btn-primary"
-                            style={{ marginRight: '1rem', color: '#832729'   }}
+                            style={{ marginRight: '1rem', color: '#832729' }}
                         >
                             Export
                         </CSVLink>
@@ -273,29 +334,48 @@ const OrderManagement = () => {
                     />
                 </div>
             </div>
-            <Table
-                columns={columns}
-                dataSource={filteredData}
-                loading={{
-                    spinning: loading,
-                    indicator: (
-                        <LoadingOutlined style={{ fontSize: 24 }} spin />
-                    ),
-                }}
-                pagination={{
-                    position: ['bottomRight'],
-                    current: currentPage,
-                    onChange: (page) => setCurrentPage(page),
-                    pageSize: pageSize,
-                    pageSizeOptions: ['5', '10', '20', '50'],
-                    onShowSizeChange: handlePageSizeChange,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                        `${range[0]}-${range[1]} of ${total} items`,
-                }}
-                rowKey="order_id"
-            />
+            {loading ? (
+                <center>
+                    <Spin
+                        indicator={
+                            <LoadingOutlined
+                                style={{ fontSize: 28, color: '#832729' }}
+                                spin
+                            />
+                        }
+                    />
+                </center>
+            ) : filteredData.length > 0 ? (
+                <Table
+                    dataSource={filteredData}
+                    style={{ overflowX: 'auto', overflowY: 'auto' }}
+                    columns={columns}
+                    rowKey="order_id"
+                    pagination={{
+                        position: ['bottomRight'],
+                        current: currentPage,
+                        onChange: (page) => setCurrentPage(page),
+                        pageSize: pageSize,
+                        pageSizeOptions: ['5', '10', '20', '50'],
+                        onShowSizeChange: handlePageSizeChange,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} of ${total} items`,
+                    }}
+                />
+            ) : searchText ? (
+                <Empty
+                    style={{ fontWeight: '350' }}
+                    description={`No orders found for "${searchText}"`}
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+            ) : (
+                <Empty
+                    style={{ fontWeight: '350' }}
+                    description="No orders available"
+                />
+            )}
         </>
     )
 }

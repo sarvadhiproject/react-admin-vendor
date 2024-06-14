@@ -9,11 +9,11 @@ const Side = ({ children, content, ...rest }) => {
             <div
                 className="bg-no-repeat bg-cover py-6 px-16 flex-col justify-between hidden lg:flex"
                 style={{
-                    backgroundImage: `url('/img/others/side-cover2.jpg')`,
+                    backgroundImage: `url('/img/others/side-cover-2.jpg')`,
                     // backgroundColor: 'transparent',
                 }}
             >
-                {/* <Logo mode="dark" /> */}
+                <Logo mode="dark" />
                 {/* <div>
                     <div className="mb-6 flex items-center gap-4">
                         <Avatar

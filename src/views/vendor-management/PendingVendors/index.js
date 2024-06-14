@@ -1,18 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import {
-    Table,
-    Button,
-    Input,
-    Empty,
-} from 'antd'
+import { Table, Button, Input, Empty, Spin } from 'antd'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
 import { Link } from 'react-router-dom'
+import { Notification, toast } from 'components/ui'
+import { LoadingOutlined } from '@ant-design/icons'
 
 const PendingVendors = () => {
     const [data, setData] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         fetchData()
@@ -26,6 +24,20 @@ const PendingVendors = () => {
             setData(response.data.pendingVendors)
         } catch (error) {
             console.error('Error fetching data:', error)
+            toast.push(
+                <Notification
+                    title={'Failed to fetch pending vendors'}
+                    type="danger"
+                    duration={2500}
+                >
+                    {error.message} - Please try again later
+                </Notification>,
+                {
+                    placement: 'top-center',
+                }
+            )
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -83,9 +95,11 @@ const PendingVendors = () => {
         {
             title: 'Email',
             dataIndex: 'email',
-            render: (text) => <Link href={`mailto:{text}`} style={{ color: '#3D77FF' }}>
+            render: (text) => (
+                <Link href={`mailto:{text}`} style={{ color: '#3D77FF' }}>
                     {text}
-                </Link>,
+                </Link>
+            ),
         },
         {
             title: 'Phone No',
@@ -123,7 +137,8 @@ const PendingVendors = () => {
                 <>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <Link
-                            to={`/app/vendor-management/kyc-details`} state={{vendor_id: record.vendor_id}}
+                            to={`/app/vendor-management/kyc-details`}
+                            state={{ vendor_id: record.vendor_id }}
                         >
                             <Button
                                 type="default"
@@ -166,7 +181,27 @@ const PendingVendors = () => {
                 </div>
             </div>
 
-            {filteredVendors.length > 0 ? (
+            {!isLoading && filteredVendors.length === 0 ? (
+                searchQuery ? (
+                    <Empty
+                        description={`No pending vendors found for "${searchQuery}"`}
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                ) : (
+                    <Empty description="No pending vendors available" />
+                )
+            ) : isLoading ? (
+                <center>
+                    <Spin
+                        indicator={
+                            <LoadingOutlined
+                                style={{ fontSize: 28, color: '#832729' }}
+                                spin
+                            />
+                        }
+                    />
+                </center>
+            ) : (
                 <Table
                     columns={columns}
                     size="small"
@@ -176,11 +211,6 @@ const PendingVendors = () => {
                         onChange: (page) => setCurrentPage(page),
                     }}
                     style={{ overflowX: 'auto' }}
-                />
-            ) : (
-                <Empty
-                    style={{ fontWeight: '350' }}
-                    description="No data found!"
                 />
             )}
         </>

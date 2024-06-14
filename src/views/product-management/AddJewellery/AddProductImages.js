@@ -80,7 +80,7 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                         type="danger"
                         duration={2500}
                     >
-                        {response.data.error}
+                        {response.data.error} - Please try again later
                     </Notification>,
                     {
                         placement: 'top-center',
@@ -95,7 +95,7 @@ const AddProductImages = ({ onPrev, formData, setFormData, onSubmit }) => {
                     type="danger"
                     duration={2500}
                 >
-                    {error.message}
+                    {error.message}- Please try again later
                 </Notification>,
                 {
                     placement: 'top-center',

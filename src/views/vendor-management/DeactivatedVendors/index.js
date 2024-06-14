@@ -1,13 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Table, Button, Input, Empty } from 'antd'
+import { Table, Button, Input, Empty, Spin } from 'antd'
 import axios from 'axios'
 import appConfig from 'configs/app.config'
 import { Link } from 'react-router-dom'
+import { Notification, toast } from 'components/ui'
+import { LoadingOutlined } from '@ant-design/icons'
 
 const DeactivatedVendors = ({ refreshDeactivated }) => {
     const [data, setData] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         fetchData()
@@ -21,6 +24,21 @@ const DeactivatedVendors = ({ refreshDeactivated }) => {
             setData(response.data.deactiveVendors)
         } catch (error) {
             console.error('Error fetching data:', error)
+            console.error('Error fetching data:', error)
+            toast.push(
+                <Notification
+                    title={'Failed to fetch active vendors'}
+                    type="danger"
+                    duration={2500}
+                >
+                    {error.message} - Please try again later
+                </Notification>,
+                {
+                    placement: 'top-center',
+                }
+            )
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -163,21 +181,36 @@ const DeactivatedVendors = ({ refreshDeactivated }) => {
                 </div>
             </div>
 
-            {filteredVendors.length > 0 ? (
+            {!isLoading && filteredVendors.length === 0 ? (
+                searchQuery ? (
+                    <Empty
+                        description={`No pending vendors found for "${searchQuery}"`}
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                ) : (
+                    <Empty description="No pending vendors available" />
+                )
+            ) : isLoading ? (
+                <center>
+                    <Spin
+                        indicator={
+                            <LoadingOutlined
+                                style={{ fontSize: 28, color: '#832729' }}
+                                spin
+                            />
+                        }
+                    />
+                </center>
+            ) : (
                 <Table
                     columns={columns}
                     size="small"
                     dataSource={filteredVendors}
-                    style={{ overflowX: 'auto' }}
                     pagination={{
                         current: currentPage,
                         onChange: (page) => setCurrentPage(page),
                     }}
-                />
-            ) : (
-                <Empty
-                    style={{ fontWeight: '350' }}
-                    description="No data found!"
+                    style={{ overflowX: 'auto' }}
                 />
             )}
         </>

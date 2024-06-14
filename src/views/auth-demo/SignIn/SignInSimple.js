@@ -1,34 +1,3 @@
-// import React from 'react'
-// import SignInForm from 'views/auth/SignIn/SignInForm'
-// import Simple from 'components/layout/AuthLayout/Simple'
-
-// const SignInSimple = (props) => {
-//     return (
-//         <Simple
-//             content={
-//                 <div className="mb-4">
-//                     <h3 className="mb-1">Welcome back!</h3>
-//                     {/* <p>Please enter your credentials to sign in!</p> */}
-//                     <p className="mb-10">
-//                         Please enter your credentials to sign in!
-//                     </p>
-//                 </div>
-//             }
-//         >
-//             <SignInForm
-//                 disableSubmit={false}
-//                 AdminLogin={true}
-//                 // signUpUrl="/auth/sign-up-simple"
-//                 //forgotPasswordUrl="/auth/forgot-password-simple"
-//                 {...props}
-//             />
-//         </Simple>
-//     )
-// }
-
-// export default SignInSimple
-
-
 import React from 'react'
 import {
     Input,
@@ -83,7 +52,12 @@ const SignInSimple = (props) => {
             <Simple
                 content={
                     <div className="mb-4">
-                        <h3 className="mb-1">Welcome back!</h3>
+                        <h3
+                            style={{ color: '#832729' }}
+                            className="mb-1"
+                        >
+                            Welcome back!
+                        </h3>
                         {/* <p>Please enter your credentials to sign in!</p> */}
                         <p className="mb-10">
                             Please enter your credentials to sign in!
@@ -116,6 +90,7 @@ const SignInSimple = (props) => {
                                 <FormContainer>
                                     <FormItem
                                         label="Email"
+                                        style={{ color: '#832729' }}
                                         invalid={errors.email && touched.email}
                                         errorMessage={errors.email}
                                     >
@@ -129,6 +104,7 @@ const SignInSimple = (props) => {
                                     </FormItem>
                                     <FormItem
                                         label="Password"
+                                        style={{ color: '#832729' }}
                                         invalid={
                                             errors.password && touched.password
                                         }
@@ -145,6 +121,7 @@ const SignInSimple = (props) => {
                                     <Button
                                         block
                                         loading={isSubmitting}
+                                        style={{ backgroundColor: '#832729' }}
                                         variant="solid"
                                         type="submit"
                                     >

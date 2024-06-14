@@ -40,9 +40,33 @@ const EditProductImages = ({
                 setFileList(existingImages)
             } else {
                 console.error('Error fetching product details:', response.data)
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch product details'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {response.data}
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
             }
         } catch (error) {
             console.error('Error fetching existing images:', error)
+            toast.push(
+                <Notification
+                    title={'Error fetching existing images'}
+                    type="danger"
+                    duration={2500}
+                >
+                    {error}
+                </Notification>,
+                {
+                    placement: 'top-center',
+                }
+            )
         }
     }
     const handleUpload = ({ fileList }) => {
@@ -139,7 +163,7 @@ const EditProductImages = ({
                         type="danger"
                         duration={2500}
                     >
-                        {data.error}
+                        {data.error} - Please try again later
                     </Notification>,
                     {
                         placement: 'top-center',

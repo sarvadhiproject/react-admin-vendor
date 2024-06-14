@@ -16,7 +16,6 @@ import EditJewellery from '../EditJewellery'
 import AddJewellery from '../AddJewellery'
 import NumberFormat from 'react-number-format'
 import axios from 'axios'
-import Cookies from 'js-cookie'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -24,61 +23,59 @@ var vendorID = decodedToken.id
 
 const ListJewellery = () => {
     const [currentPage, setCurrentPage] = useState(1)
+    const [isLoading, setIsLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState('')
     const [products, setProducts] = useState([])
     const [categories, setCategories] = useState({})
+    const [isAddJewelleryOpen, setIsAddJewelleryOpen] = useState(false)
+    const [isEditMode, setIsEditMode] = useState(false)
+    const [allData, setAllData] = useState({})
+    const [selectedProductId, setSelectedProductId] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [productToDelete, setProductToDelete] = useState(null)
     const [isDeleting, setIsDeleting] = useState(false)
-    const [isLoading, setIsLoading] = useState(true)
-    const [isEditMode, setIsEditMode] = useState(false)
-    const [selectedProductId, setSelectedProductId] = useState(null)
-    const [allData, setAllData] = useState({})
-    const [isAddJewelleryOpen, setIsAddJewelleryOpen] = useState(false)
-    const [searchQuery, setSearchQuery] = useState('')
 
     useEffect(() => {
-        setIsLoading(true)
-        // Fetch product data
-        axios
-            .get(`${appConfig.apiPrefix}/products/vendor/${vendorID}`)
-            .then((response) => {
-                if (response.data.data) {
-                    setProducts(response.data.data)
-                    Cookies.set(
-                        'totalVendorProducts',
-                        response.data.data.length
-                    )
-                } else if (
-                    response.data.message ===
-                    'No products found for this vendor'
-                ) {
-                    setProducts([])
-                } else {
-                    console.error(
-                        'Unexpected response from the server:',
-                        response.data
-                    )
-                }
-            })
-            .catch((error) => console.error('Error fetching products:', error))
-            .finally(() => setIsLoading(false))
+        const fetchData = async () => {
+            setIsLoading(true)
+            try {
+                const [productsRes, categoriesRes] = await Promise.all([
+                    axios.get(
+                        `${appConfig.apiPrefix}/products/vendor/${vendorID}`
+                    ),
+                    axios.get(
+                        `${appConfig.apiPrefix}/categories/get-categories`
+                    ),
+                ])
+                setProducts(productsRes?.data?.data || [])
 
-        axios
-            .get(`${appConfig.apiPrefix}/categories/get-categories`)
-            .then((response) => {
                 const categoriesMap = {}
-                response.data.forEach((category) => {
+                categoriesRes?.data?.forEach((category) => {
                     categoriesMap[category.category_id] = category.category_name
                 })
                 setCategories(categoriesMap)
-            })
-            .catch((error) =>
-                console.error('Error fetching categories:', error)
-            )
-    }, [])
+            } catch (error) {
+                toast.push(
+                    <Notification
+                        title={'Failed to fetch products'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        {error?.message} - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchData()
+    }, [currentPage])
 
     const handleDetailView = (product) => {
         setSelectedProduct(product)
@@ -92,6 +89,18 @@ const ListJewellery = () => {
                     setProducts(response.data.data)
                 } else {
                     console.error('Invalid response format:', response.data)
+                    toast.push(
+                        <Notification
+                            title={'Invalid response format'}
+                            type="danger"
+                            duration={2500}
+                        >
+                            {response.data} - Please try again later
+                        </Notification>,
+                        {
+                            placement: 'top-center',
+                        }
+                    )
                 }
             })
             .catch((error) => console.error('Error:', error))
@@ -137,7 +146,7 @@ const ListJewellery = () => {
                         type="danger"
                         duration={2500}
                     >
-                        {error.message}
+                        {error.message} - Please try again later
                     </Notification>,
                     {
                         placement: 'top-center',
@@ -171,8 +180,14 @@ const ListJewellery = () => {
         setSelectedProductId(productId)
     }
 
-    const filteredProducts = products.filter((product) =>
-        product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredProducts = useMemo(
+        () =>
+            products.filter((product) =>
+                product.product_name
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase())
+            ),
+        [products, searchQuery]
     )
 
     const indexStart = useMemo(() => {
@@ -267,22 +282,7 @@ const ListJewellery = () => {
                 />
             ),
         },
-        // {
-        //     title: 'Stock Quantity',
-        //     dataIndex: 'stock_quantity',
-        //     key: 'stock_quantity',
-        //     sorter: (a, b) => a.stock_quantity - b.stock_quantity,
-        //     render: (value) => (
-        //         <span
-        //             style={{
-        //                 color: value <= 3 ? 'red' : 'green',
-        //                 fontWeight: '600',
-        //             }}
-        //         >
-        //             {value}
-        //         </span>
-        //     ),
-        // },
+
         {
             title: 'Action',
             key: 'action',
@@ -368,7 +368,7 @@ const ListJewellery = () => {
                         <Spin
                             indicator={
                                 <LoadingOutlined
-                                    style={{ fontSize: 24 }}
+                                    style={{ fontSize: 28, color: '#832729' }}
                                     spin
                                 />
                             }
@@ -387,8 +387,11 @@ const ListJewellery = () => {
                     ) : products.length === 0 ? (
                         <Empty description="">No products found!</Empty>
                     ) : (
-                        <Empty description="">
-                            Searched product not found!
+                        <Empty
+                            description=""
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        >
+                            No product found for '{searchQuery}'
                         </Empty>
                     )}
                     <Modal
@@ -568,12 +571,6 @@ const ListJewellery = () => {
                                         </span>
                                         {selectedProduct.occasion_type}
                                     </p>
-                                    {/* <p>
-                                        <span style={{ fontWeight: '600' }}>
-                                            Stock Quantity :{' '}
-                                        </span>
-                                        {selectedProduct.stock_quantity}
-                                    </p> */}
                                 </Col>
                             </Row>
                         )}

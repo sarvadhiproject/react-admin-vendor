@@ -274,6 +274,7 @@ const appsNavigationConfig = [
                 authority: [ADMIN],
                 subMenu: [],
             },
+
             {
                 // key: 'productManagement',
                 key: 'apps.productList',
@@ -353,7 +354,7 @@ const appsNavigationConfig = [
                 // subMenu: [
                 //     {
                 key: 'appsAccount.settings',
-                path: `${APP_PREFIX_PATH}/account/settings/profile`,
+                path: `${APP_PREFIX_PATH}/account/settings/password`,
                 title: 'Settings',
                 // translateKey: 'nav.appsAccount.settings',
                 // icon: '',
@@ -374,6 +375,15 @@ const appsNavigationConfig = [
             // },
             //     ],
             // },
+            {
+                key: 'apps.websiteReviews',
+                path: `${APP_PREFIX_PATH}/website-reviews`,
+                title: 'Reviews',
+                icon: 'webreviews',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [ADMIN],
+                subMenu: [],
+            },
         ],
     },
 ]

@@ -229,7 +229,7 @@ const OrderDetails = () => {
                 let icon
                 let displayStatus
 
-                switch (status) {
+                switch (vendor_status) {
                     case 1:
                         displayStatus = 'Order Received'
                         color = 'orange'
@@ -479,6 +479,28 @@ const OrderDetails = () => {
                             </Space>
                         </Paragraph>
                         <Paragraph>
+                            <Paragraph>
+                                <Space>
+                                    <ShoppingCartOutlined
+                                        style={{ fontSize: '16px' }}
+                                    />
+                                    <Text strong>Coupon Discount: </Text>
+                                    <Text>
+                                        ₹{formatNumber(order?.discount_value)}
+                                    </Text>
+                                </Space>
+                            </Paragraph>
+                            <Paragraph>
+                                <Space>
+                                    <ShoppingCartOutlined
+                                        style={{ fontSize: '16px' }}
+                                    />
+                                    <Text strong>Discounted Amount: </Text>
+                                    <Text>
+                                        ₹{formatNumber(order?.discounted_amount)}
+                                    </Text>
+                                </Space>
+                            </Paragraph>
                             <Space>
                                 <ShoppingCartOutlined
                                     style={{ fontSize: '16px' }}
@@ -487,7 +509,7 @@ const OrderDetails = () => {
                                 <Text>
                                     ₹
                                     {formatNumber(
-                                        totalSubTotal.toFixed(2) * 0.18
+                                        order?.discounted_amount * 0.03
                                     )}
                                 </Text>
                             </Space>
@@ -848,7 +870,6 @@ const OrderDetails = () => {
 }
 
 export default OrderDetails
-
 
 //before color change
 // import React, { useState, useEffect } from 'react'

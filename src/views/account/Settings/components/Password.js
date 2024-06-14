@@ -1,47 +1,25 @@
-import React from 'react'
-import classNames from 'classnames'
+import React, { useState } from 'react'
 import {
     Input,
     Button,
-    Tag,
     Notification,
     toast,
     FormContainer,
 } from 'components/ui'
 import FormDesription from './FormDesription'
 import FormRow from './FormRow'
-import { Field, Form, Formik, resetForm } from 'formik'
-
-import isLastChild from 'utils/isLastChild'
-import {
-    HiOutlineDesktopComputer,
-    HiOutlineDeviceMobile,
-    HiOutlineDeviceTablet,
-} from 'react-icons/hi'
-import dayjs from 'dayjs'
+import { Field, Form, Formik } from 'formik'
 import axios from 'axios'
 import * as Yup from 'yup'
-import { jwtDecode } from 'jwt-decode'
 import appConfig from 'configs/app.config'
+import { Modal } from 'antd'
+import { jwtDecode } from 'jwt-decode'
 
-// const LoginHistoryIcon = ({ type }) => {
-//     switch (type) {
-//         case 'Desktop':
-//             return <HiOutlineDesktopComputer />
-//         case 'Mobile':
-//             return <HiOutlineDeviceMobile />
-//         case 'Tablet':
-//             return <HiOutlineDeviceTablet />
-//         default:
-//             return <HiOutlineDesktopComputer />
-//     }
-// }
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
-var vendorID = decodedToken.id
+const vendorID = decodedToken.id
 
 const validationSchema = Yup.object().shape({
-    oldPassword: Yup.string().required('Current password Required'),
     newPassword: Yup.string()
         .required('Enter your new password')
         .min(8, 'Too Short!')
@@ -49,6 +27,7 @@ const validationSchema = Yup.object().shape({
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
             'Valid password format (e.g., Abcd@1234)'
         ),
+    oldPassword: Yup.string().required('Current password Required'),
     confirmNewPassword: Yup.string().oneOf(
         [Yup.ref('newPassword'), null],
         'Password not match'
@@ -56,6 +35,8 @@ const validationSchema = Yup.object().shape({
 })
 
 const Password = ({ data }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
     const onFormSubmit = (values, setSubmitting, resetForm) => {
         toast.push(<Notification title={'Password updated'} type="success" />, {
             placement: 'top-center',
@@ -63,6 +44,7 @@ const Password = ({ data }) => {
         setSubmitting(false)
         resetForm()
     }
+
     const handleChangePassword = async (values, setSubmitting, resetForm) => {
         const { oldPassword, newPassword } = values
         if (oldPassword === newPassword) {
@@ -132,6 +114,67 @@ const Password = ({ data }) => {
             setSubmitting(false)
         }
     }
+
+    const showModal = () => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete your account?',
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk: handleOk,
+        })
+    }
+
+    const handleOk = async () => {
+        try {
+            const response = await axios.delete(
+                `${appConfig.apiPrefix}/vendor/delete-account/${vendorID}`
+            )
+            if (response.data.success) {
+                toast.push(
+                    <Notification
+                        title={'Account deleted successfully'}
+                        type="success"
+                        duration={2500}
+                    >
+                        Account deleted successfully
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+                // Additional actions after account deletion, e.g., redirect to login
+            } else {
+                toast.push(
+                    <Notification
+                        title={'Error deleting account'}
+                        type="danger"
+                        duration={2500}
+                    >
+                        Error deleting account - Please try again later
+                    </Notification>,
+                    {
+                        placement: 'top-center',
+                    }
+                )
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error)
+            toast.push(
+                <Notification
+                    title={'Failed to delete account'}
+                    type="danger"
+                    duration={2500}
+                >
+                    {error.message} - Please try again later
+                </Notification>,
+                {
+                    placement: 'top-center',
+                }
+            )
+        }
+    }
+
     return (
         <>
             <Formik
@@ -143,9 +186,6 @@ const Password = ({ data }) => {
                 validationSchema={validationSchema}
                 onSubmit={(values, { setSubmitting, resetForm }) => {
                     setSubmitting(true)
-                    // setTimeout(() => {
-                    //     onFormSubmit(values, setSubmitting)
-                    // }, 1000)
                     handleChangePassword(values, setSubmitting, resetForm)
                 }}
             >
@@ -155,7 +195,15 @@ const Password = ({ data }) => {
                         <Form>
                             <FormContainer>
                                 <FormDesription
-                                    title="Password"
+                                    title={
+                                        <span
+                                            style={{
+                                                color: '#832729',
+                                            }}
+                                        >
+                                            Password
+                                        </span>
+                                    }
                                     desc="Enter your current & new password to reset your password"
                                 />
                                 <FormRow
@@ -197,76 +245,47 @@ const Password = ({ data }) => {
                                         component={Input}
                                     />
                                 </FormRow>
-                                <div className="mt-4 ltr:text-right">
-                                    <Button
-                                        className="ltr:mr-2 rtl:ml-2"
-                                        type="button"
-                                        onClick={resetForm}
-                                    >
-                                        Reset
-                                    </Button>
+                                <div className="mt-4 flex justify-between">
                                     <Button
                                         variant="solid"
-                                        loading={isSubmitting}
-                                        type="submit"
+                                        type="button"
+                                        onClick={showModal}
+                                        style={{
+                                            backgroundColor: '#d9534f',
+                                            borderColor: '#d43f3a',
+                                            color: '#fff',
+                                        }}
                                     >
-                                        {isSubmitting
-                                            ? 'Updating'
-                                            : 'Update Password'}
+                                        <i className="fas fa-trash-alt"></i>{' '}
+                                        Delete Account
                                     </Button>
+                                    <div>
+                                        <Button
+                                            className="ltr:mr-2 rtl:ml-2"
+                                            type="button"
+                                            onClick={resetForm}
+                                        >
+                                            Reset
+                                        </Button>
+                                        <Button
+                                            variant="solid"
+                                            loading={isSubmitting}
+                                            style={{
+                                                backgroundColor: '#832729',
+                                            }}
+                                            type="submit"
+                                        >
+                                            {isSubmitting
+                                                ? 'Updating'
+                                                : 'Update Password'}
+                                        </Button>
+                                    </div>
                                 </div>
                             </FormContainer>
                         </Form>
                     )
                 }}
             </Formik>
-            {/* <div className="mt-6">
-                <FormDesription
-                    title="Where you're signed in"
-                    desc="You're signed in to your account on these devices."
-                />
-                {data && (
-                    <div className="rounded-lg border border-gray-200 dark:border-gray-600 mt-6">
-                        {data.map((log, index) => (
-                            <div
-                                key={log.deviceName}
-                                className={classNames(
-                                    'flex items-center px-4 py-6',
-                                    !isLastChild(data, index) &&
-                                        'border-b border-gray-200 dark:border-gray-600'
-                                )}
-                            >
-                                <div className="flex items-center">
-                                    <div className="text-3xl">
-                                        <LoginHistoryIcon type={log.type} />
-                                    </div>
-                                    <div className="ml-3 rtl:mr-3">
-                                        <div className="flex items-center">
-                                            <div className="text-gray-900 dark:text-gray-100 font-semibold">
-                                                {log.deviceName}
-                                            </div>
-                                            {index === 0 && (
-                                                <Tag className="bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-100 rounded-md border-0 mx-2">
-                                                    <span className="capitalize">
-                                                        {' '}
-                                                        Current{' '}
-                                                    </span>
-                                                </Tag>
-                                            )}
-                                        </div>
-                                        <span>
-                                            {log.location} •{' '}
-                                            {dayjs
-                                                .unix(log.time)
-                                                .format('DD-MMM-YYYY, hh:mm A')}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div> */}
         </>
     )
 }

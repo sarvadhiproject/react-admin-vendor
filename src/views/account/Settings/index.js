@@ -5,22 +5,22 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import isEmpty from 'lodash/isEmpty'
 import { apiGetAccountSettingData } from 'services/AccountServices'
 
-const Profile = lazy(() => import('./components/Profile'))
+// const Profile = lazy(() => import('./components/Profile'))
 const Password = lazy(() => import('./components/Password'))
-const NotificationSetting = lazy(() =>
-    import('./components/NotificationSetting')
-)
-const Integration = lazy(() => import('./components/Integration'))
-const Billing = lazy(() => import('./components/Billing'))
+// const NotificationSetting = lazy(() =>
+//     import('./components/NotificationSetting')
+// )
+// const Integration = lazy(() => import('./components/Integration'))
+// const Billing = lazy(() => import('./components/Billing'))
 
 const { TabNav, TabList } = Tabs
 
 const settingsMenu = {
-    profile: { label: 'Profile', path: 'profile' },
+    // profile: { label: 'Profile', path: 'profile' },
     password: { label: 'Password', path: 'password' },
-    notification: { label: 'Notification', path: 'notification' },
-    integration: { label: 'Integration', path: 'integration' },
-    billing: { label: 'Billing', path: 'billing' },
+    // notification: { label: 'Notification', path: 'notification' },
+    // integration: { label: 'Integration', path: 'integration' },
+    // billing: { label: 'Billing', path: 'billing' },
 }
 
 const Settings = () => {
@@ -64,7 +64,7 @@ const Settings = () => {
                             </TabNav>
                         ))} */}
                         {Object.keys(settingsMenu)
-                            .slice(0, 2)
+                            .slice(1, 2)
                             .map((key) => (
                                 <TabNav key={key} value={key}>
                                     {settingsMenu[key].label}
@@ -74,17 +74,17 @@ const Settings = () => {
                 </Tabs>
                 <div className="px-4 py-6">
                     <Suspense fallback={<></>}>
-                        {currentTab === 'profile' && (
+                        {/* {currentTab === 'profile' && (
                             <Profile data={data.profile} />
-                        )}
+                        )} */}
                         {currentTab === 'password' && (
                             <Password data={data.loginHistory} />
                         )}
-                        {currentTab === 'notification' && (
+                        {/* {currentTab === 'notification' && (
                             <NotificationSetting data={data.notification} />
                         )}
                         {currentTab === 'integration' && <Integration />}
-                        {currentTab === 'billing' && <Billing />}
+                        {currentTab === 'billing' && <Billing />} */}
                     </Suspense>
                 </div>
             </AdaptableCard>

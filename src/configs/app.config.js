@@ -1,5 +1,5 @@
 const appConfig = {
-    // apiPrefix: 'http://10.25.3.130:4000',
+    // apiPrefix: 'https://22ef-117-99-57-183.ngrok-free.app',
     apiPrefix: 'http://localhost:4000',
     imgPrefix: 'https://res.cloudinary.com/dyjgvi4ma/image/upload',
     authenticatedEntryPath: '/app/sales/dashboard',

@@ -32,11 +32,12 @@ import { FaChartPie, FaRegChartBar } from 'react-icons/fa'
 import { GiCrystalEarrings } from 'react-icons/gi'
 import { ImUsers } from 'react-icons/im'
 import { MdOutlineBookmarks } from 'react-icons/md'
+import { MdOutlineReviews } from 'react-icons/md'
 
 const navigationIcon = {
     apps: <HiOutlineViewGridAdd />,
     project: <HiOutlineChartSquareBar />,
-    crm: <HiOutlineUserGroup />,
+    crm: <HiOutlineUserGroup style={{ fontSize: '22px' }} />,
     sales: <HiOutlineTrendingUp />,
     crypto: <HiOutlineCurrencyDollar />,
     knowledgeBase: <HiOutlineBookOpen />,
@@ -70,6 +71,7 @@ const navigationIcon = {
     categories: <GiDropEarrings />,
     users: <ImUsers style={{ fontSize: '22px' }} />,
     banner: <MdOutlineBookmarks style={{ fontSize: '22px' }} />,
+    webreviews: <MdOutlineReviews style={{ fontSize: '22px' }} />,
 }
 
 export default navigationIcon
