@@ -319,7 +319,7 @@ const appsNavigationConfig = [
             {
                 key: 'customers',
                 path: `${APP_PREFIX_PATH}/sales/AllCustomers`,
-                title: 'Customers',
+                title: 'Users',
                 icon: 'users',
                 type: NAV_ITEM_TYPE_ITEM,
                 authority: [ADMIN],

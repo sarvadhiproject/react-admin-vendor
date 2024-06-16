@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Table, Modal, message, Row, Col, Tooltip, Empty } from 'antd'
+import { Table, Modal, message, Row, Col, Tooltip, Empty, Select } from 'antd'
 import {
     InfoCircleTwoTone,
     LeftOutlined,
@@ -17,6 +17,7 @@ import AddJewellery from '../AddJewellery'
 import NumberFormat from 'react-number-format'
 import axios from 'axios'
 
+const { Option } = Select
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
 var vendorID = decodedToken.id
@@ -37,6 +38,8 @@ const ListJewellery = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [productToDelete, setProductToDelete] = useState(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [purityFilter, setPurityFilter] = useState(null)
+    const [categoryFilter, setCategoryFilter] = useState(null)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -180,15 +183,26 @@ const ListJewellery = () => {
         setSelectedProductId(productId)
     }
 
-    const filteredProducts = useMemo(
-        () =>
-            products.filter((product) =>
+    const filteredProducts = useMemo(() => {
+        if (!Array.isArray(products)) {
+            return []
+        }
+
+        const lowercaseQuery = searchQuery.toLowerCase().trim()
+        return products
+            .filter(
+                (product) =>
+                    (purityFilter ? product.purity === purityFilter : true) &&
+                    (categoryFilter
+                        ? product.category_id === categoryFilter
+                        : true)
+            )
+            .filter((product) =>
                 product.product_name
                     ?.toLowerCase()
                     .includes(searchQuery.toLowerCase())
-            ),
-        [products, searchQuery]
-    )
+            )
+    }, [products, searchQuery, purityFilter, categoryFilter])
 
     const indexStart = useMemo(() => {
         const pageSize = 10 // Adjust this to your desired page size
@@ -348,6 +362,32 @@ const ListJewellery = () => {
                                 style={{ marginRight: '1rem' }}
                                 size="large"
                             />
+                            <Select
+                                placeholder="Filter by category"
+                                size="large"
+                                style={{ width: 200, marginRight: '1rem' }}
+                                onChange={(value) => setCategoryFilter(value)}
+                                allowClear
+                            >
+                                {Object.keys(categories).map((key) => (
+                                    <Option key={key} value={parseInt(key)}>
+                                        {categories[key]}
+                                    </Option>
+                                ))}
+                            </Select>
+                            <Select
+                                placeholder="Filter by purity"
+                                size="large"
+                                style={{ width: 150, marginRight: '1rem' }}
+                                onChange={(value) => setPurityFilter(value)}
+                                allowClear
+                            >
+                                <Option value="24k">24k</Option>
+                                <Option value="22k">22k</Option>
+                                <Option value="18k">18k</Option>
+                                <Option value="14k">14k</Option>
+                                <Option value="10k">10k</Option>
+                            </Select>
                             <Button
                                 onClick={() => setIsAddJewelleryOpen(true)}
                                 block
