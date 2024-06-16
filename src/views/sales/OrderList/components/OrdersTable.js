@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Table, Input, Button, Empty, Spin } from 'antd'
+import { Table, Input, Button, Empty, Spin, Select } from 'antd'
 import {
     EyeOutlined,
     ClockCircleOutlined,
@@ -18,11 +18,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { CSVLink } from 'react-csv'
 import { Notification, toast } from 'components/ui'
 
+const { Option } = Select
+
 const OrdersTable = () => {
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchText, setSearchText] = useState('')
     const [pageSize, setPageSize] = useState(10)
+    const [statusFilter, setStatusFilter] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
     const navigate = useNavigate()
 
@@ -75,6 +78,11 @@ const OrdersTable = () => {
 
     const handlePageSizeChange = (current, size) => {
         setPageSize(Number(size))
+        setCurrentPage(1)
+    }
+
+    const handleStatusChange = (value) => {
+        setStatusFilter(value)
         setCurrentPage(1)
     }
 
@@ -192,14 +200,14 @@ const OrdersTable = () => {
                     )
                 },
             },
-            {
-                title: 'Payment Method',
-                dataIndex: 'payment_method',
-                key: 'payment_method',
-                sorter: (a, b) =>
-                    a.payment_method.localeCompare(b.payment_method),
-                render: (text) => <span style={{ color: '#666' }}>{text}</span>,
-            },
+            // {
+            //     title: 'Payment Method',
+            //     dataIndex: 'payment_method',
+            //     key: 'payment_method',
+            //     sorter: (a, b) =>
+            //         a.payment_method.localeCompare(b.payment_method),
+            //     render: (text) => <span style={{ color: '#666' }}>{text}</span>,
+            // },
             {
                 title: 'Total',
                 dataIndex: 'total_amount',
@@ -239,8 +247,8 @@ const OrdersTable = () => {
         [indexStart]
     )
 
-    const filteredData = data.filter(
-        (order) =>
+    const filteredData = data.filter((order) => {
+        const matchesSearchText =
             order.order_id
                 .toString()
                 .replace('#', '')
@@ -249,7 +257,13 @@ const OrdersTable = () => {
             order.customer_name
                 .toLowerCase()
                 .includes(searchText.toLowerCase().trim())
-    )
+
+        const matchesStatus = statusFilter
+            ? order.status === statusFilter
+            : true
+
+        return matchesSearchText && matchesStatus
+    })
 
     return (
         <>
@@ -268,6 +282,25 @@ const OrdersTable = () => {
                     Orders
                 </h3>
                 <div>
+                    <Input.Search
+                        placeholder="Search by order-id or customer"
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{ marginRight: '1rem', width: 300 }}
+                        size="large"
+                    />
+                    <Select
+                        placeholder="Filter by status"
+                        style={{ width: 200, marginRight: '1rem' }}
+                        size="large"
+                        onChange={handleStatusChange}
+                        allowClear
+                    >
+                        <Option value={1}>Order Received</Option>
+                        <Option value={2}>Processing</Option>
+                        <Option value={3}>Shipped</Option>
+                        <Option value={4}>Out for Delivery</Option>
+                        <Option value={5}>Delivered</Option>
+                    </Select>
                     <Button
                         icon={<HiDownload />}
                         className="mr-4"
@@ -287,12 +320,6 @@ const OrdersTable = () => {
                             Export
                         </CSVLink>
                     </Button>
-                    <Input.Search
-                        placeholder="Search by order or customer"
-                        onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: 270 }}
-                        size="large"
-                    />
                 </div>
             </div>
             {loading ? (

@@ -387,15 +387,6 @@ const OrderDetails = () => {
                     >
                         <Paragraph>
                             <Space>
-                                <ShoppingCartOutlined
-                                    style={{ fontSize: '16px' }}
-                                />
-                                <Text strong>Invoice: </Text>
-                                <Text>######</Text>
-                            </Space>
-                        </Paragraph>
-                        <Paragraph>
-                            <Space>
                                 <CalendarOutlined
                                     style={{ fontSize: '16px' }}
                                 />

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Table, Input, Button, Empty, Spin } from 'antd'
+import { Table, Input, Button, Empty, Spin, Select } from 'antd'
 import {
     EyeOutlined,
     ClockCircleOutlined,
@@ -19,6 +19,8 @@ import { CSVLink } from 'react-csv'
 import { jwtDecode } from 'jwt-decode'
 import { Notification, toast } from 'components/ui'
 
+const { Option } = Select
+
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
 var vendor_id = decodedToken.id
@@ -28,6 +30,7 @@ const OrderManagement = () => {
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchText, setSearchText] = useState('')
+    const [statusFilter, setStatusFilter] = useState(null)
     const navigate = useNavigate()
     const [pageSize, setPageSize] = useState(10)
     const [currentPage, setCurrentPage] = useState(1)
@@ -80,12 +83,16 @@ const OrderManagement = () => {
     const handleGenerateInvoice = async (orderId) => {
         try {
             const response = await axios.get(
-                `${appConfig.apiPrefix}/invoice/${orderId}/${vendor_id}`
-            )
-            window.open(
                 `${appConfig.apiPrefix}/invoice/${orderId}/${vendor_id}`,
-                '_blank'
+                { responseType: 'blob' }
             )
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `invoice_${orderId}.pdf`)
+            document.body.appendChild(link)
+            link.click()
+            link.parentNode.removeChild(link)
         } catch (error) {
             console.error('Error generating invoice:', error)
             toast.push(
@@ -108,6 +115,11 @@ const OrderManagement = () => {
     const handlePageSizeChange = (current, size) => {
         setPageSize(Number(size))
         setCurrentPage(1) // Reset to the first page when page size changes
+    }
+
+    const handleStatusChange = (value) => {
+        setStatusFilter(value)
+        setCurrentPage(1)
     }
 
     const columns = [
@@ -214,13 +226,13 @@ const OrderManagement = () => {
                 )
             },
         },
-        {
-            title: 'Payment Method',
-            dataIndex: 'payment_method',
-            key: 'payment_method',
-            sorter: (a, b) => a.payment_method.localeCompare(b.payment_method),
-            render: (text) => <span style={{ color: '#666' }}>Card</span>,
-        },
+        // {
+        //     title: 'Payment Method',
+        //     dataIndex: 'payment_method',
+        //     key: 'payment_method',
+        //     sorter: (a, b) => a.payment_method.localeCompare(b.payment_method),
+        //     render: (text) => <span style={{ color: '#666' }}>Card</span>,
+        // },
         {
             title: 'Total',
             dataIndex: 'total_amount',
@@ -242,16 +254,6 @@ const OrderManagement = () => {
             title: 'Invoice',
             key: 'invoice',
             render: (_, record) => (
-                // <a
-                //     href="#"
-                //     onClick={(e) => {
-                //         e.preventDefault()
-                //         handleGenerateInvoice(record.order_id)
-                //     }}
-                //     style={{ color: '#832729', textDecoration: 'underline' }}
-                // >
-                //     Invoice
-                // </a>
                 <button
                     style={{
                         border: 'none',
@@ -288,8 +290,8 @@ const OrderManagement = () => {
         },
     ]
 
-    const filteredData = data.filter(
-        (order) =>
+    const filteredData = data.filter((order) => {
+        const matchesSearchText =
             order.order_id
                 .toString()
                 .replace('#', '')
@@ -298,7 +300,13 @@ const OrderManagement = () => {
             order.customer_name
                 .toLowerCase()
                 .includes(searchText.toLowerCase().trim())
-    )
+
+        const matchesStatus = statusFilter
+            ? order.status === statusFilter
+            : true
+
+        return matchesSearchText && matchesStatus
+    })
 
     return (
         <>
@@ -308,6 +316,25 @@ const OrderManagement = () => {
                     Orders
                 </h3>
                 <div className="flex items-center">
+                    <Input.Search
+                        placeholder="Search by order-id or customer"
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{ marginRight: '1rem' }}
+                        size="large"
+                    />
+                    <Select
+                        placeholder="Filter by status"
+                        style={{ width: 200, marginRight: '1rem' }}
+                        size="large"
+                        onChange={handleStatusChange}
+                        allowClear
+                    >
+                        <Option value={1}>Order Received</Option>
+                        <Option value={2}>Processing</Option>
+                        <Option value={3}>Shipped</Option>
+                        <Option value={4}>Out for Delivery</Option>
+                        <Option value={5}>Delivered</Option>
+                    </Select>
                     <Button
                         icon={<HiDownload />}
                         className="mr-4"
@@ -326,12 +353,6 @@ const OrderManagement = () => {
                             Export
                         </CSVLink>
                     </Button>
-                    <Input.Search
-                        placeholder="Search by order or customer"
-                        onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: 270 }}
-                        size="large"
-                    />
                 </div>
             </div>
             {loading ? (

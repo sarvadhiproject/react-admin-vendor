@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Table, Modal, Row, Col, Tooltip, Input, Empty, Spin } from 'antd'
+import {
+    Table,
+    Modal,
+    Row,
+    Col,
+    Tooltip,
+    Input,
+    Empty,
+    Spin,
+    Select,
+} from 'antd'
 import {
     InfoCircleTwoTone,
     LeftOutlined,
@@ -19,6 +29,7 @@ const TableContainer = styled.div`
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `
+const { Option } = Select
 
 const ProductList = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -34,6 +45,8 @@ const ProductList = () => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [pageSize, setPageSize] = useState(10)
+    const [purityFilter, setPurityFilter] = useState(null)
+    const [categoryFilter, setCategoryFilter] = useState(null)
 
     useEffect(() => {
         axios
@@ -164,15 +177,23 @@ const ProductList = () => {
             return []
         }
 
-        const lowercaseQuery = searchQuery.toLowerCase()
-        return products.filter(
-            (product) =>
-                (vendors[product.vendor_id] || '')
-                    .toLowerCase()
-                    .includes(lowercaseQuery) ||
-                product.product_name.toLowerCase().includes(lowercaseQuery)
-        )
-    }, [products, searchQuery, vendors])
+        const lowercaseQuery = searchQuery.toLowerCase().trim()
+        return products
+            .filter(
+                (product) =>
+                    (vendors[product.vendor_id] || '')
+                        .toLowerCase()
+                        .includes(lowercaseQuery) ||
+                    product.product_name.toLowerCase().includes(lowercaseQuery)
+            )
+            .filter(
+                (product) =>
+                    (purityFilter ? product.purity === purityFilter : true) &&
+                    (categoryFilter
+                        ? product.category_id === categoryFilter
+                        : true)
+            )
+    }, [products, searchQuery, vendors, purityFilter, categoryFilter])
 
     const handleDelete = (record) => {
         setProductToDelete(record.product_id)
@@ -387,8 +408,8 @@ const ProductList = () => {
                 }}
             >
                 {/* <h3 style={{ color: '#022B4E' }}>Manage Products</h3> */}
-                <h3 style={{ color: '#832729' }}>Manage Products</h3>
-                <div>
+                <h3 style={{ color: '#832729' }}>Products</h3>
+                <div style={{ display: 'flex', gap: '1rem' }}>
                     <Input.Search
                         placeholder="Search by vendor or product"
                         value={searchQuery}
@@ -396,6 +417,32 @@ const ProductList = () => {
                         style={{ width: 272 }}
                         size="large"
                     />
+                    <Select
+                        placeholder="Filter by category"
+                        size="large"
+                        style={{ width: 200 }}
+                        onChange={(value) => setCategoryFilter(value)}
+                        allowClear
+                    >
+                        {Object.keys(categories).map((key) => (
+                            <Option key={key} value={parseInt(key)}>
+                                {categories[key]}
+                            </Option>
+                        ))}
+                    </Select>
+                    <Select
+                        placeholder="Filter by purity"
+                        size="large"
+                        style={{ width: 150 }}
+                        onChange={(value) => setPurityFilter(value)}
+                        allowClear
+                    >
+                        <Option value="24k">24k</Option>
+                        <Option value="22k">22k</Option>
+                        <Option value="18k">18k</Option>
+                        <Option value="14k">14k</Option>
+                        <Option value="10k">10k</Option>
+                    </Select>
                 </div>
             </div>
             {isLoading ? (

@@ -413,15 +413,6 @@ const OrderDetails = () => {
                     >
                         <Paragraph>
                             <Space>
-                                <ShoppingCartOutlined
-                                    style={{ fontSize: '16px' }}
-                                />
-                                <Text strong>Invoice: </Text>
-                                <Text>######</Text>
-                            </Space>
-                        </Paragraph>
-                        <Paragraph>
-                            <Space>
                                 <CalendarOutlined
                                     style={{ fontSize: '16px' }}
                                 />
@@ -466,7 +457,7 @@ const OrderDetails = () => {
                                     style={{ fontSize: '16px' }}
                                 />
                                 <Text strong>Payment Method: </Text>
-                                <Text>Master Card</Text>
+                                <Text>Card</Text>
                             </Space>
                         </Paragraph>
                         <Paragraph>
