@@ -5,6 +5,7 @@ import appConfig from 'configs/app.config'
 import { jwtDecode } from 'jwt-decode'
 import { Notification, toast } from 'components/ui'
 import { LoadingOutlined } from '@ant-design/icons'
+import { Link } from 'react-router-dom'
 
 const token = localStorage.getItem('admin')
 const decodedToken = jwtDecode(token)
@@ -75,7 +76,11 @@ const Customers = () => {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-            render: (text) => <span style={{ color: '#666' }}>{text}</span>,
+            render: (text) => (
+                <Link href={`mailto:${text}`} style={{ color: '#3D77FF' }}>
+                    {text}
+                </Link>
+            ),
         },
         {
             title: 'Phone Number',

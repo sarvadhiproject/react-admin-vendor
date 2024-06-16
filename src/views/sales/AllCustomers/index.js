@@ -4,6 +4,7 @@ import { Table, Input, Empty, Spin } from 'antd'
 import appConfig from 'configs/app.config'
 import { Notification, toast } from 'components/ui'
 import { LoadingOutlined } from '@ant-design/icons'
+import { Link } from 'react-router-dom'
 
 function AllCustomers() {
     const [customers, setCustomers] = useState([])
@@ -70,7 +71,11 @@ function AllCustomers() {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
-            render: (text) => <span style={{ color: '#666' }}>{text}</span>,
+            render: (text) => (
+                <Link href={`mailto:${text}`} style={{ color: '#3D77FF' }}>
+                    {text}
+                </Link>
+            ),
         },
         {
             title: 'Phone Number',

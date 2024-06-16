@@ -75,31 +75,39 @@ const AddProductMetadata = ({ onNext, formData, setFormData }) => {
                 </Select>
             </Form.Item>
             <Form.Item>
-                <Button
-                    type="primary"
-                    htmlType="submit"
+                <div
                     style={{
-                        // background: '#1890ff',
-                        // borderColor: '#1890ff',
-                        background: '#832729',
-                        borderColor: '#832729',
-                        borderRadius: '4px',
-                        marginTop: '10px',
-                        width: '80px',
+                        display: 'flex',
+                        justifyContent: 'flex-end', // Aligns the button to the right
                     }}
-                    // style={{
-                    //     // background: '#1890ff',
-                    //     background: 'white',
-                    //     fontWeight: '650',
-                    //     color: '#022b4e',
-                    //     border: '1px solid #022b4e',
-                    //     // borderColor: '',
-                    //     borderRadius: '4px',
-                    //     width: '80px',
-                    // }}
                 >
-                    Next
-                </Button>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        style={{
+                            // background: '#1890ff',
+                            // borderColor: '#1890ff',
+                            background: '#832729',
+                            borderColor: '#832729',
+
+                            borderRadius: '4px',
+                            marginTop: '10px',
+                            width: '80px',
+                        }}
+                        // style={{
+                        //     // background: '#1890ff',
+                        //     background: 'white',
+                        //     fontWeight: '650',
+                        //     color: '#022b4e',
+                        //     border: '1px solid #022b4e',
+                        //     // borderColor: '',
+                        //     borderRadius: '4px',
+                        //     width: '80px',
+                        // }}
+                    >
+                        Next
+                    </Button>
+                </div>
             </Form.Item>
         </Form>
     )
