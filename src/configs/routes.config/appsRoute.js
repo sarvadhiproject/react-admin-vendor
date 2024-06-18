@@ -11,20 +11,10 @@ const appsRoute = [
     },
     {
         key: 'appsSales.categoryList',
-        // path: `${APP_PREFIX_PATH}/sales/product-list`,
         path: `${APP_PREFIX_PATH}/sales/category-list`,
         component: React.lazy(() => import('views/sales/CategoryList')),
         authority: [ADMIN, USER],
     },
-    // {
-    //     key: 'appsSales.productEdit',
-    //     path: `${APP_PREFIX_PATH}/sales/product-edit/:productId`,
-    //     component: React.lazy(() => import('views/sales/ProductEdit')),
-    //     authority: [ADMIN, USER],
-    //     meta: {
-    //         header: 'Edit Product',
-    //     },
-    // },
     {
         key: 'appsSales.productNew',
         path: `${APP_PREFIX_PATH}/sales/category-new`,
@@ -64,24 +54,6 @@ const appsRoute = [
             header: 'Settings',
             headerContainer: true,
         },
-    },
-    {
-        key: 'appsAccount.invoice',
-        path: `${APP_PREFIX_PATH}/account/invoice/:id`,
-        component: React.lazy(() => import('views/account/Invoice')),
-        authority: [ADMIN, USER],
-    },
-    {
-        key: 'appsAccount.activityLog',
-        path: `${APP_PREFIX_PATH}/account/activity-log`,
-        component: React.lazy(() => import('views/account/ActivityLog')),
-        authority: [ADMIN, USER],
-    },
-    {
-        key: 'appsAccount.kycForm',
-        path: `${APP_PREFIX_PATH}/account/kyc-form`,
-        component: React.lazy(() => import('views/account/KycForm')),
-        authority: [USER, VENDOR],
     },
     {
         key: 'apps.vendorManagement',
@@ -145,22 +117,6 @@ const appsRoute = [
         component: React.lazy(() => import('views/manage-coupons')),
         authority: [VENDOR],
     },
-    // {
-    //     key: 'vendorManagementActive',
-    //     path: `${APP_PREFIX_PATH}/vendor-management/ActiveVendors`,
-    //     component: React.lazy(() =>
-    //         import('views/vendor-management/ActiveVendors')
-    //     ),
-    //     authority: [ADMIN],
-    // },
-    // {
-    //     key: 'vendorManagementDeactivated',
-    //     path: `${APP_PREFIX_PATH}/vendor-management/DeactivatedVendors`,
-    //     component: React.lazy(() =>
-    //         import('views/vendor-management/DeactivatedVendors')
-    //     ),
-    //     authority: [ADMIN],
-    // },
     {
         key: 'apps.productAdd',
         path: `${APP_PREFIX_PATH}/product-management/AddJewellery`,

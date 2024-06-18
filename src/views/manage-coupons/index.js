@@ -72,7 +72,7 @@ const Coupons = () => {
             values.expiry_date = values.expiry_date.format('YYYY-MM-DD')
             if (editingCoupon) {
                 await axios.put(
-                    `${appConfig.apiPrefix}/coupon/${editingCoupon.coupon_id}`,
+                    `${appConfig.apiPrefix}/coupon/update/${editingCoupon.coupon_id}`,
                     {
                         ...values,
                         vendor_id: vendorID,
@@ -157,7 +157,7 @@ const Coupons = () => {
             onOk: async () => {
                 try {
                     await axios.delete(
-                        `${appConfig.apiPrefix}/coupon/${couponId}`
+                        `${appConfig.apiPrefix}/coupon/delete/${couponId}`
                     )
                     toast.push(
                         <Notification
@@ -443,7 +443,7 @@ const Coupons = () => {
                         <Col span={12}>
                             <Form.Item
                                 name="discount_value"
-                                label="Discount Value"
+                                label="Discount Value (Rs.)"
                                 rules={[
                                     {
                                         required: true,
@@ -461,7 +461,7 @@ const Coupons = () => {
                         <Col span={12}>
                             <Form.Item
                                 name="minimum_amount"
-                                label="Minimum Amount"
+                                label="Minimum Amount (Rs.)"
                                 rules={[
                                     {
                                         required: true,

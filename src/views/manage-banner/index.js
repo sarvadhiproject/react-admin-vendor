@@ -487,7 +487,7 @@ const Banner = () => {
             )}
 
             <Modal
-                title="Add Banner"
+                title={<h5 style={{ color: '#832729' }}>Add Banner</h5>}
                 visible={isAddBannerOpen}
                 onCancel={() => {
                     setIsAddBannerOpen(false)

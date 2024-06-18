@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Button } from 'components/ui'
 import { HiPlusCircle } from 'react-icons/hi'
-import ProductTableSearch from './ProductTableSearch'
 import { Modal } from 'antd'
 import CategoryNew from 'views/sales/CategoryNew'
 

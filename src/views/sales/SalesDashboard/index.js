@@ -1,10 +1,7 @@
 import React from 'react'
-import reducer from './store'
-import { injectReducer } from 'store/index'
 import SalesDashboardHeader from './components/SalesDashboardHeader'
 import SalesDashboardBody from './components/SalesDashboardBody'
 
-injectReducer('salesDashboard', reducer)
 
 const SalesDashboard = () => {
     return (

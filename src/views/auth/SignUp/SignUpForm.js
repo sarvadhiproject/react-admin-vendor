@@ -124,7 +124,7 @@ const SignUpForm = (props) => {
     }
     const handleCloseDialog = () => {
         setShowSuccessDialog(false)
-        window.location.href = 'http://192.168.2.103:3000/'
+        window.location.href = 'http://localhost:3001/'
     }
 
     const onSignUp = async (values, setSubmitting) => {
@@ -834,10 +834,10 @@ const SignUpForm = (props) => {
                 onCancel={() => setShowTermsModal(false)}
                 footer={[
                     <Button
-                        style={{ backgroundColor: '#832729',color:'white' }}
+                        style={{ backgroundColor: '#832729', color: 'white' }}
                         key="ok"
                         onClick={() => setShowTermsModal(false)}
-                        size='sm'
+                        size="sm"
                     >
                         OK
                     </Button>,

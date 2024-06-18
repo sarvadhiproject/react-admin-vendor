@@ -1,12 +1,7 @@
 import React from 'react'
-import reducer from './store'
 import { injectReducer } from 'store/index'
 import { AdaptableCard } from 'components/shared'
 import OrdersTable from './components/OrdersTable'
-import OrdersTableTools from './components/OrdersTableTools'
-import OrderDeleteConfirmation from './components/OrderDeleteConfirmation'
-
-injectReducer('salesOrderList', reducer)
 
 const OrderList = () => {
     return (

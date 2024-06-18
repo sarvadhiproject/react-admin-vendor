@@ -13,12 +13,7 @@ import useAuth from 'utils/hooks/useAuth'
 import useDirection from 'utils/hooks/useDirection'
 
 const layouts = {
-    [LAYOUT_TYPE_CLASSIC]: lazy(() => import('./ClassicLayout')),
     [LAYOUT_TYPE_MODERN]: lazy(() => import('./ModernLayout')),
-    [LAYOUT_TYPE_STACKED_SIDE]: lazy(() => import('./StackedSideLayout')),
-    [LAYOUT_TYPE_SIMPLE]: lazy(() => import('./SimpleLayout')),
-    [LAYOUT_TYPE_DECKED]: lazy(() => import('./DeckedLayout')),
-    [LAYOUT_TYPE_BLANK]: lazy(() => import('./BlankLayout')),
 }
 
 const Layout = () => {

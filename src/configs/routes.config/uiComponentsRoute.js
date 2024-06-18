@@ -277,18 +277,7 @@ const uiComponentsRoute = [
         ),
         authority: [ADMIN, USER],
     },
-    {
-        key: 'uiComponent.graph.charts',
-        path: `${UI_COMPONENTS_PREFIX_PATH}/graph/charts`,
-        component: React.lazy(() => import('views/ui-components/graph/Charts')),
-        authority: [ADMIN, USER],
-    },
-    {
-        key: 'uiComponent.graph.maps',
-        path: `${UI_COMPONENTS_PREFIX_PATH}/graph/maps`,
-        component: React.lazy(() => import('views/ui-components/graph/Maps')),
-        authority: [ADMIN, USER],
-    },
+
 ]
 
 export default uiComponentsRoute
